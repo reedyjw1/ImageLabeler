@@ -1,17 +1,13 @@
 package com.reedy.imagelabeler.features.annotations.view
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
-import com.reedy.imagelabeler.view.overlay.Box
-import com.reedy.imagelabeler.view.overlay.BoxAdded
-import com.reedy.imagelabeler.view.overlay.Overlay
+import com.reedy.imagelabeler.view.overlay.model.Box
+import com.reedy.imagelabeler.view.overlay.model.BoxAdded
 import kotlinx.android.synthetic.main.fragment_annotations.*
 
 class AnnotationsFragment:

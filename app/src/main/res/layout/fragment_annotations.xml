@@ -41,7 +41,7 @@
         android:background="@color/black"
         app:layout_constraintStart_toEndOf="@id/project_structure" />
 
-    <com.reedy.imagelabeler.view.overlay.Overlay
+    <com.reedy.imagelabeler.view.overlay.OverlayFrame
         android:id="@+id/image_editor"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -55,13 +55,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.reedy.imagelabeler.view.overlay.TestingDraw
+        <com.reedy.imagelabeler.view.overlay.Overlay
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
 
 
-    </com.reedy.imagelabeler.view.overlay.Overlay>
+    </com.reedy.imagelabeler.view.overlay.OverlayFrame>
 
     <FrameLayout
         android:id="@+id/controls"

@@ -1,4 +1,4 @@
-package com.reedy.imagelabeler.view.overlay
+package com.reedy.imagelabeler.view.overlay.model
 
 interface BoxAdded {
     fun onBoxAdded(box: Box)
