@@ -1,6 +1,11 @@
 package com.reedy.imagelabeler.view.overlay
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -25,8 +30,18 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
     private var boxListener: BoxAdded? = null
     private var down = false
     private var box: Box? = null
+    private var paint: Paint = Paint()
 
     var boxClicked: ((Box) -> Unit)? = null
+
+    init {
+        paint.color = Color.YELLOW
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 12.0f
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.strokeJoin = Paint.Join.ROUND
+        paint.strokeMiter = 100.0f
+    }
     
     private val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector?): Boolean {
@@ -39,6 +54,13 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
         override fun onScaleEnd(detector: ScaleGestureDetector?) {
             Log.i(TAG, "onScaleEnd: ")
             isScaling = false
+            this@OverlayFrame.children.forEach {
+                if (it is Overlay) {
+                    boxes.forEach {
+
+                    }
+                }
+            }
             super.onScaleEnd(detector)
         }
 
@@ -54,8 +76,6 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
             Log.i(TAG, "onSingleTapConfirmed: tap")
             return super.onSingleTapConfirmed(e)
         }
-
-        //over
     }
 
     private val gestureDetector = ScaleGestureDetector(context, listener)
@@ -85,7 +105,6 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     private fun handleTouchEvent(ev: MotionEvent?): Boolean {
         when(ev?.action) {
             MotionEvent.ACTION_UP -> {
@@ -95,15 +114,7 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
                     val touchY = ev.y.toInt()
 
                     this.children.forEach {
-                        if (it is PhotoView) {
-                            /*val coords = floatArrayOf(touchX.toFloat(), touchY.toFloat())
-                            val matrix = Matrix()
-                            it.imageMatrix.invert(matrix)
-                            matrix.postTranslate(it.scrollX.toFloat(), it.scrollY.toFloat())
-                            matrix.mapPoints(coords)
-                            box?.xMax = coords[0]
-                            box?.yMax = coords[1]*/
-
+                        if (it is Overlay) {
                             val values = FloatArray(9)
                             matrix.getValues(values)
 
@@ -129,16 +140,37 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
 
                             box?.width = abs(xMax - xMin).toInt()
                             box?.height = abs(yMax - yMin).toInt()
+                            box?.scale = it.scale
 
                             val notNullBox = box ?: return true
                             boxListener?.onBoxAdded(notNullBox)
-                        } else if (it is Overlay) {
+                            box?.let { box ->
+                                Log.i(TAG, "handleTouchEvent: box=$box")
+                                it.boxes.add(box)
+                                it.invalidate()
+                                /*val bitmap: Bitmap = Bitmap.createBitmap((it.drawable as BitmapDrawable).bitmap)
+                                val mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                                val canvas = Canvas(mutableBitmap)
+                                Log.i(TAG, "handleTouchEvent: box=$box")
+                                canvas.drawRect(
+                                    xMin,
+                                    yMax,
+                                    xMax,
+                                    yMin,
+                                    paint
+                                )
+                                canvas.save()
+                                it.setImageBitmap(mutableBitmap)
+
+                                it.invalidate()*/
+                            }
+                        } /*else if (it is Overlay) {
                             box?.let { box ->
                                 Log.i(TAG, "handleTouchEvent: box=$box")
                                 it.boxes.add(box)
                                 it.invalidate()
                             }
-                        }
+                        }*/
                     }
                 } else {
                     box = null
@@ -149,33 +181,17 @@ class OverlayFrame(context: Context, attrs: AttributeSet) : FrameLayout(context,
             MotionEvent.ACTION_DOWN -> {
                 box = Box()
                 down = true
-                val x = ev.x
-                val y = ev.y
+                val touchX = ev.x
+                val touchY = ev.y
 
                 this.children.forEach {
-                    if (it is PhotoView) { 
-                        /*val coords = floatArrayOf(x, y)
-                        val matrix = Matrix()
-                        it.imageMatrix.invert(matrix)
-                        matrix.postTranslate(it.scrollX.toFloat(), it.scrollY.toFloat())
-                        matrix.mapPoints(coords)
-                        box?.xMin = coords[0]
-                        box?.yMin = coords[1]
-*/
+                    if (it is Overlay) {
                         val values = FloatArray(9)
                         matrix.getValues(values)
 
-                        // values[2] and values[5] are the x,y coordinates of the top left corner of the drawable image, regardless of the zoom factor.
-                        // values[0] and values[4] are the zoom factors for the image's width and height respectively. If you zoom at the same factor, these should both be the same value.
 
-                        // event is the touch event for MotionEvent.ACTION_UP
-
-                        // values[2] and values[5] are the x,y coordinates of the top left corner of the drawable image, regardless of the zoom factor.
-                        // values[0] and values[4] are the zoom factors for the image's width and height respectively. If you zoom at the same factor, these should both be the same value.
-
-                        // event is the touch event for MotionEvent.ACTION_UP
-                        val relativeX: Float = (x - values[2]) / values[0]
-                        val relativeY: Float = (y - values[5]) / values[4]
+                        val relativeX: Float = (touchX - values[2]) / values[0]
+                        val relativeY: Float = (touchY - values[5]) / values[4]
                         box?.xMin = relativeX
                         box?.yMin = relativeY
                     }

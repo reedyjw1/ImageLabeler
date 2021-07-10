@@ -1,5 +1,7 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -41,7 +43,6 @@ class AnnotationsFragment:
 
         })
         image_view.setImageResource(R.drawable.test)
-
 
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }

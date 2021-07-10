@@ -9,4 +9,9 @@ data class Box(
     var yMin: Float? = null,
     var xMax: Float? = null,
     var yMax: Float? = null,
+    var scale: Float? = null,
+    var absoluteXMin: Float? = null,
+    var absoluteXMax: Float? = null,
+    var absoluteYMin: Float? = null,
+    var absoluteYMax: Float? = null,
 )
