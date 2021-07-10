@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/annotations">
+
+    <fragment
+        android:id="@+id/projects"
+        android:name="com.reedy.imagelabeler.features.projects.view.ProjectsFragment"
+        android:label="@string/projects"
+        tools:layout="@layout/fragment_projects"/>
+
+    <fragment
+        android:id="@+id/annotations"
+        android:label="@string/annotations"
+        android:name="com.reedy.imagelabeler.features.annotations.view.AnnotationsFragment"
+        tools:layout="@layout/fragment_annotations"/>
+
+</navigation>

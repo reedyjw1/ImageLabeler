@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Image Labeler</string>
+
+    <string name="projects">Projects</string>
+    <string name="annotations">Annotations</string>
+
+    <string name="export">Export Files</string>
+</resources>
