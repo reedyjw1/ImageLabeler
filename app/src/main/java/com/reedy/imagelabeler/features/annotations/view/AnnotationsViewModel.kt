@@ -3,8 +3,12 @@ package com.reedy.imagelabeler.features.annotations.view
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
+import com.reedy.imagelabeler.extensions.addAndUpdate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -40,6 +44,18 @@ class AnnotationsViewModel private constructor(
                         buttonState = ButtonState.ZOOM
                     )
                 }
+            }
+            is AnnotationsViewEvent.OnBoxAdded -> {
+                if (!event.onlyVisual) {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        setState {
+                            copy(
+                                boxes = boxes.addAndUpdate(event.box)
+                            )
+                        }
+                    }
+                }
+                emitEffect(AnnotationsViewEffect.UpdateBoxList(event.box))
             }
         }
     }

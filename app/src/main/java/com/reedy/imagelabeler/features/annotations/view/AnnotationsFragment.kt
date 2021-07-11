@@ -9,10 +9,12 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
+import com.reedy.imagelabeler.view.image.Box
+import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
 
 class AnnotationsFragment:
-    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations)
+    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations), BoxUpdatedListener
 {
     companion object {
         private const val TAG = "Annotations"
@@ -34,6 +36,7 @@ class AnnotationsFragment:
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        image_editor.addBoxListener(this)
         overlay.setImageResource(R.drawable.grid)
 
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
@@ -70,6 +73,14 @@ class AnnotationsFragment:
     }
 
     override fun handleSideEffect(effect: AnnotationsViewEffect) {
+        when(effect) {
+            is AnnotationsViewEffect.UpdateBoxList -> {
+                image_editor.updateBoxes(effect.box)
+            }
+        }
+    }
 
+    override fun onBoxAdded(box: Box, onlyVisual: Boolean) {
+        viewModel.process(AnnotationsViewEvent.OnBoxAdded(box, onlyVisual))
     }
 }

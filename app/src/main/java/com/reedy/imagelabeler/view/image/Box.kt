@@ -1,8 +1,11 @@
 package com.reedy.imagelabeler.view.image
 
+import java.util.*
+
 data class Box(
     var group: String? = null ,
     var label: String? = null,
+    var uid: String? = UUID.randomUUID().toString(),
     var width: Int? = null,
     var height: Int? = null,
     var xMin: Float? = null,

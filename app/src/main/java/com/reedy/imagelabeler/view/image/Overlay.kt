@@ -16,6 +16,7 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
     private var paint: Paint = Paint()
     private var box: Box? = null
     var isEditing = false
+    var boxListener : BoxUpdatedListener? = null
     
     companion object {
         private const val TAG = "OverlayView"
@@ -44,6 +45,10 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
         }
     }
 
+    fun setListener(listener: BoxUpdatedListener) {
+        boxListener = listener
+    }
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val touchX = event?.x ?: return true
         val touchY = event.y
@@ -70,8 +75,9 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
                 val notNullBox = box ?: return true
 
                 box?.let { box ->
-                    Log.i(TAG, "handleTouchEvent: box=$box")
-                    boxes.add(box)
+                    Log.i(TAG, "handleTouchEvent: final box=$box, listener=$boxListener")
+                    boxListener?.onBoxAdded(box, false)
+                    //boxes.add(box)
                     invalidate()
                 }
                 box = null
@@ -102,8 +108,9 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
                 val notNullBox = box ?: return true
 
                 box?.let { box ->
-                    Log.i(TAG, "handleTouchEvent: box=$boxes")
-                    boxes.add(box)
+                    Log.i(TAG, "handleTouchEvent:  box=$box")
+                    boxListener?.onBoxAdded(box, true)
+                    //boxes.add(box)
                     invalidate()
                 }
             }
