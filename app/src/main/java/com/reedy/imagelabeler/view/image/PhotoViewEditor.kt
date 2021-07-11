@@ -2,11 +2,11 @@ package com.reedy.imagelabeler.view.image
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import androidx.core.view.children
 import com.otaliastudios.zoom.ZoomLayout
 import com.reedy.imagelabeler.extensions.replace
+import com.reedy.imagelabeler.model.Box
 
 class PhotoViewEditor(context: Context, attrs: AttributeSet): ZoomLayout(context, attrs){
     

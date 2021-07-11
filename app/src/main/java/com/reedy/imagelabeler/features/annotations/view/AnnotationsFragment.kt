@@ -1,7 +1,5 @@
 package com.reedy.imagelabeler.features.annotations.view
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -9,7 +7,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
-import com.reedy.imagelabeler.view.image.Box
+import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
 
@@ -19,8 +17,6 @@ class AnnotationsFragment:
     companion object {
         private const val TAG = "Annotations"
     }
-
-    //TODO - fix float to int conversion for better accuracy, fix scalling issue preventing boxes from being drawn, allow boxes to be edited, resize boxes with zoom.
 
     private val navigator by lazy {
         val navHostFragment = requireActivity()

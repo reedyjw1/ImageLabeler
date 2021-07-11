@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
+import com.reedy.imagelabeler.model.Box
 import kotlin.math.abs
 
 class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) {
@@ -23,7 +24,7 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
     }
 
     init {
-        paint.color = Color.RED
+        paint.color = Color.YELLOW
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = 8.0f
         paint.strokeCap = Paint.Cap.ROUND

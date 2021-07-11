@@ -1,4 +1,4 @@
-package com.reedy.imagelabeler.view.image
+package com.reedy.imagelabeler.model
 
 import java.util.*
 
