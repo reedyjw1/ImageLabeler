@@ -108,6 +108,10 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
                 Log.i(TAG, "handleTouchEvent: box=$box")
                 val notNullBox = box ?: return true
 
+                box?.label = "box"
+                box?.group = "test"
+                box?.fileName = "grid.jpg"
+
                 box?.let { box ->
                     Log.i(TAG, "handleTouchEvent:  box=$box")
                     boxListener?.onBoxAdded(box, true)

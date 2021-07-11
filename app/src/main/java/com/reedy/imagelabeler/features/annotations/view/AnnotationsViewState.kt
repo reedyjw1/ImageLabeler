@@ -16,9 +16,11 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     object EditButtonClicked: AnnotationsViewEvent()
     object DeleteButtonClicked: AnnotationsViewEvent()
     object ZoomButtonClicked: AnnotationsViewEvent()
+    object ExportFiles: AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
 }
 
 sealed class AnnotationsViewEffect(): ViewStateEffect {
     data class UpdateBoxList(val box: Box): AnnotationsViewEffect()
+    data class ExportAnnotations(val list: List<Box>): AnnotationsViewEffect()
 }

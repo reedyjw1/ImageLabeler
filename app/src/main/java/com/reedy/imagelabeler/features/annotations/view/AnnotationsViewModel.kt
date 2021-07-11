@@ -1,15 +1,11 @@
 package com.reedy.imagelabeler.features.annotations.view
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.addAndUpdate
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -59,6 +55,9 @@ class AnnotationsViewModel private constructor(
                         )
                     }
                 }
+            }
+            AnnotationsViewEvent.ExportFiles -> {
+                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.boxes))
             }
         }
     }
