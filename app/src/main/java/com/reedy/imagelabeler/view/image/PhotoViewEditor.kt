@@ -40,6 +40,13 @@ class PhotoViewEditor(context: Context, attrs: AttributeSet): ZoomLayout(context
         }
     }
 
+    fun updateBoxList(boxes: List<Box>) {
+        children.firstOrNull()?.let {
+            val overlay = it as Overlay
+            overlay.boxes = boxes.toMutableList()
+        }
+    }
+
     fun addBoxListener(listener: BoxUpdatedListener) {
         children.firstOrNull()?.let {
             val overlay = it as Overlay

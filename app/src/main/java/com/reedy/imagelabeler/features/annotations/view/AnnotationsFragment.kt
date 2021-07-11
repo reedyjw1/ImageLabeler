@@ -56,6 +56,7 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
+        image_editor.updateBoxList(viewState.boxes)
     }
 
     private fun enableZoom(bool: Boolean) {

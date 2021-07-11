@@ -7,7 +7,7 @@ import com.reedy.imagelabeler.model.Box
 
 data class AnnotationsViewState(
     val buttonState: ButtonState = ButtonState.ZOOM,
-    val boxes: List<Box> = emptyList()
+    val boxes: MutableList<Box> = mutableListOf()
 ): ViewState
 
 sealed class AnnotationsViewEvent(): ViewStateEvent {

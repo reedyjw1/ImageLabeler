@@ -6,8 +6,8 @@ fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
     }
 }
 
-fun <T> List<T>.addAndUpdate(newValue: T): List<T> {
-    this.toMutableList().add(newValue)
+fun <T> MutableList<T>.addAndUpdate(newValue: T): MutableList<T> {
+    add(newValue)
     return this
 }
 

@@ -1,5 +1,6 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -46,16 +47,18 @@ class AnnotationsViewModel private constructor(
                 }
             }
             is AnnotationsViewEvent.OnBoxAdded -> {
+                // For updating the list while the box is still moving
+                emitEffect(AnnotationsViewEffect.UpdateBoxList(event.box))
+
+                // For finalizing the box list once the touch has been released
+                // Ensures that the view model is the ultimate source of truth
                 if (!event.onlyVisual) {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        setState {
-                            copy(
-                                boxes = boxes.addAndUpdate(event.box)
-                            )
-                        }
+                    setState {
+                        copy(
+                            boxes = boxes.addAndUpdate(event.box)
+                        )
                     }
                 }
-                emitEffect(AnnotationsViewEffect.UpdateBoxList(event.box))
             }
         }
     }
