@@ -36,7 +36,7 @@
 
     </FrameLayout>
 
-    <com.reedy.imagelabeler.view.image.TestZoom
+    <com.reedy.imagelabeler.view.image.PhotoViewEditor
         android:id="@+id/image_editor"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -49,13 +49,13 @@
         app:alignment="center"
         app:hasClickableChildren="true">
 
-        <com.reedy.imagelabeler.view.iamge.Overlay
+        <com.reedy.imagelabeler.view.image.Overlay
             android:id="@+id/overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
 
-    </com.reedy.imagelabeler.view.image.TestZoom>
+    </com.reedy.imagelabeler.view.image.PhotoViewEditor>
 
 
     <FrameLayout

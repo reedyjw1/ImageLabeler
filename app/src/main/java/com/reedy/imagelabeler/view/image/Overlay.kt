@@ -1,4 +1,4 @@
-package com.reedy.imagelabeler.view.iamge
+package com.reedy.imagelabeler.view.image
 
 import android.content.Context
 import android.graphics.Canvas
@@ -7,11 +7,7 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
 import android.widget.ImageView
-import androidx.core.view.children
-import com.reedy.imagelabeler.view.image.Box
-import com.reedy.imagelabeler.view.image.OverlayFrame
 import kotlin.math.abs
 
 class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) {
@@ -19,15 +15,16 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
     var boxes = mutableListOf<Box>()
     private var paint: Paint = Paint()
     private var box: Box? = null
+    var isEditing = false
     
     companion object {
         private const val TAG = "OverlayView"
     }
 
     init {
-        paint.color = Color.YELLOW
+        paint.color = Color.RED
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 12.0f
+        paint.strokeWidth = 8.0f
         paint.strokeCap = Paint.Cap.ROUND
         paint.strokeJoin = Paint.Join.ROUND
         paint.strokeMiter = 100.0f
@@ -42,8 +39,7 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
             val yMax = box.yMax ?: return
 
             canvas?.let {
-                Log.i("TEST", "onDraw: ")
-                it.drawRect(xMin.toFloat(), yMax.toFloat(), xMax.toFloat(), yMin.toFloat(), paint)
+                it.drawRect(xMin, yMax, xMax, yMin, paint)
             }
         }
     }
@@ -52,31 +48,24 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
         val touchX = event?.x ?: return true
         val touchY = event.y
 
+        if (!isEditing) return false
+
         when(event.action) {
             MotionEvent.ACTION_UP -> {
                 Log.i(TAG, "onTouchEvent: up")
-                val values = FloatArray(9)
-                matrix.getValues(values)
-                val relativeX: Float = (touchX - values[2]) / values[0]
-                val relativeY: Float = (touchY - values[5]) / values[4]
-
                 box?.xMax = touchX
                 box?.yMax = touchY
-                box?.relativeToBitmapXMax = relativeX
-                box?.relativeToBitmapYMax = relativeY
+                box?.relativeToBitmapXMax = touchX/2f
+                box?.relativeToBitmapYMax = touchY/2f
 
                 Log.i(TAG, "before width - handleTouchEvent: $box")
-                val xMax = box?.xMax ?: return true
-                val xMin = box?.xMin ?: return true
-                val yMax = box?.yMax ?: return true
-                val yMin = box?.yMin ?: return true
-                var x1 = box?.relativeToBitmapXMax ?: return true
-                var x2 = box?.relativeToBitmapXMin ?: return true
-                var y1 = box?.relativeToBitmapYMax ?: return true
-                var y2 = box?.relativeToBitmapYMin ?: return true
+                val x2 = box?.relativeToBitmapXMax ?: return true
+                val x1 = box?.relativeToBitmapXMin ?: return true
+                val y2 = box?.relativeToBitmapYMax ?: return true
+                val y1 = box?.relativeToBitmapYMin?: return true
 
-                box?.width = abs((x1 - x2) / 2).toInt()
-                box?.height = abs((y1 - y2) / 2).toInt()
+                box?.width = abs(x2 - x1).toInt()
+                box?.height = abs(y2 - y1).toInt()
                 Log.i(TAG, "handleTouchEvent: box=$box")
                 val notNullBox = box ?: return true
 
@@ -88,46 +77,27 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
                 box = null
             }
             MotionEvent.ACTION_DOWN -> {
-                Log.i(TAG, "onTouchEvent: down")
                 box = Box()
-
-                val values = FloatArray(9)
-                matrix.getValues(values)
-                val relativeX: Float = (touchX - values[2]) / values[0]
-                val relativeY: Float = (touchY - values[5]) / values[4]
-
                 box?.xMin = touchX
                 box?.yMin = touchY
-                box?.relativeToBitmapXMin = relativeX
-                box?.relativeToBitmapYMin = relativeY
+                box?.relativeToBitmapXMin = touchX/2f
+                box?.relativeToBitmapYMin = touchY/2f
                 Log.i(TAG, "handleTouchEvent: box=$box")
             }
             MotionEvent.ACTION_MOVE -> {
-                Log.i(TAG, "onTouchEvent: move")
-                Log.i(TAG, "handleTouchEvent: test")
-
-                val values = FloatArray(9)
-                matrix.getValues(values)
-                val relativeX: Float = (touchX - values[2]) / values[0]
-                val relativeY: Float = (touchY - values[5]) / values[4]
-
                 box?.xMax = touchX
                 box?.yMax = touchY
-                box?.relativeToBitmapXMax = relativeX
-                box?.relativeToBitmapYMax = relativeY
+                box?.relativeToBitmapXMax = touchX/2f
+                box?.relativeToBitmapYMax = touchY/2f
 
                 Log.i(TAG, "before width - handleTouchEvent: $box")
                 val xMax = box?.xMax ?: return true
                 val xMin = box?.xMin ?: return true
                 val yMax = box?.yMax ?: return true
                 val yMin = box?.yMin ?: return true
-                var x1 = box?.relativeToBitmapXMax ?: return true
-                var x2 = box?.relativeToBitmapXMin ?: return true
-                var y1 = box?.relativeToBitmapYMax ?: return true
-                var y2 = box?.relativeToBitmapYMin ?: return true
 
-                box?.width = abs((x1 - x2) / 2).toInt()
-                box?.height = abs((y1 - y2) / 2).toInt()
+                box?.width = abs(xMax -xMin).toInt()
+                box?.height = abs(yMax - yMin).toInt()
                 Log.i(TAG, "handleTouchEvent: box=$box")
                 val notNullBox = box ?: return true
 
@@ -139,75 +109,5 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
             }
         }
         return true
-    }
-
-    fun updateStart(x: Float, y: Float) {
-        box = Box()
-
-        val values = FloatArray(9)
-        matrix.getValues(values)
-        val relativeX: Float = (x - values[2]) / values[0]
-        val relativeY: Float = (y - values[5]) / values[4]
-
-        box?.xMin = relativeX
-        box?.yMin = relativeY
-        Log.i(TAG, "handleTouchEvent: box=$box")
-    }
-
-    fun updateMove(x: Float, y: Float) {
-        Log.i(TAG, "handleTouchEvent: test")
-
-        val values = FloatArray(9)
-        matrix.getValues(values)
-        val relativeX: Float = (x - values[2]) / values[0]
-        val relativeY: Float = (y - values[5]) / values[4]
-
-        box?.xMax = relativeX
-        box?.yMax = relativeY
-
-        Log.i(TAG, "before width - handleTouchEvent: $box")
-        val xMax = box?.xMax ?: return
-        val xMin = box?.xMin ?: return
-        val yMax = box?.yMax ?: return
-        val yMin = box?.yMin ?: return
-
-        box?.width = abs(xMax - xMin).toInt()
-        box?.height = abs(yMax - yMin).toInt()
-        Log.i(TAG, "handleTouchEvent: box=$box")
-        val notNullBox = box ?: return
-
-        box?.let { box ->
-            Log.i(TAG, "handleTouchEvent: box=$box")
-            boxes.add(box)
-            invalidate()
-        }
-    }
-
-    fun updateEnd(x: Float, y: Float) {
-        val values = FloatArray(9)
-        matrix.getValues(values)
-        val relativeX: Float = (x - values[2]) / values[0]
-        val relativeY: Float = (y - values[5]) / values[4]
-
-        box?.xMax = relativeX
-        box?.yMax = relativeY
-
-        Log.i(TAG, "before width - handleTouchEvent: $box")
-        val xMax = box?.xMax ?: return
-        val xMin = box?.xMin ?: return
-        val yMax = box?.yMax ?: return
-        val yMin = box?.yMin ?: return
-
-        box?.width = abs(xMax - xMin).toInt()
-        box?.height = abs(yMax - yMin).toInt()
-        Log.i(TAG, "handleTouchEvent: box=$box")
-        val notNullBox = box ?: return
-
-        box?.let { box ->
-            Log.i(TAG, "handleTouchEvent: box=$box")
-            boxes.add(box)
-            invalidate()
-        }
-        box = null
     }
 }

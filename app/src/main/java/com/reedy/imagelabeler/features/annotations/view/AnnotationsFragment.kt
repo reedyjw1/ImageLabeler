@@ -35,8 +35,6 @@ class AnnotationsFragment:
         super.onViewCreated(view, savedInstanceState)
 
         overlay.setImageResource(R.drawable.grid)
-        //val bitmap = (image.drawable as BitmapDrawable).bitmap
-        //overlay.setImageBitmap(Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888))
 
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }
@@ -67,7 +65,7 @@ class AnnotationsFragment:
         image_editor.setScrollEnabled(bool)
         image_editor.setHorizontalPanEnabled(bool)
         image_editor.setVerticalPanEnabled(bool)
-        image_editor.isEditing = !bool
+        image_editor.isEditingEnabled(!bool)
         
     }
 
