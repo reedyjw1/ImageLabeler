@@ -13,7 +13,8 @@
         app:layout_constraintEnd_toStartOf="@id/image_editor"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintWidth_percent=".25">
+        app:layout_constraintWidth_percent=".25"
+        android:elevation="4dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -35,29 +36,27 @@
 
     </FrameLayout>
 
-    <View
-        android:layout_width="2dp"
-        android:layout_height="match_parent"
-        android:background="@color/black"
-        app:layout_constraintStart_toEndOf="@id/project_structure" />
-
-    <com.reedy.imagelabeler.view.overlay.OverlayFrame
+    <com.reedy.imagelabeler.view.image.TestZoom
         android:id="@+id/image_editor"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintStart_toEndOf="@+id/project_structure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:transformation="centerCrop"
+        app:transformationGravity="auto"
+        app:alignment="center"
+        app:hasClickableChildren="true">
 
-        <com.reedy.imagelabeler.view.overlay.Overlay
-            android:id="@+id/image_view"
+        <com.reedy.imagelabeler.view.iamge.Overlay
+            android:id="@+id/overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
 
+    </com.reedy.imagelabeler.view.image.TestZoom>
 
-    </com.reedy.imagelabeler.view.overlay.OverlayFrame>
 
     <FrameLayout
         android:id="@+id/controls"

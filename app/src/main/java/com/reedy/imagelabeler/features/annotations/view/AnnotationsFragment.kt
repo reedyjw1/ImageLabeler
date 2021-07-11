@@ -3,13 +3,12 @@ package com.reedy.imagelabeler.features.annotations.view
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
-import com.reedy.imagelabeler.view.overlay.model.Box
-import com.reedy.imagelabeler.view.overlay.model.BoxAdded
 import kotlinx.android.synthetic.main.fragment_annotations.*
 
 class AnnotationsFragment:
@@ -35,24 +34,41 @@ class AnnotationsFragment:
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image_editor.setOnBoxAddedListener(object : BoxAdded {
-            override fun onBoxAdded(box: Box) {
-                image_editor.boxes.add(box)
-                image_editor.invalidate()
-            }
-
-        })
-        image_view.setImageResource(R.drawable.test)
+        overlay.setImageResource(R.drawable.grid)
+        //val bitmap = (image.drawable as BitmapDrawable).bitmap
+        //overlay.setImageBitmap(Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888))
 
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }
         edit.setOnClickListener { viewModel.process(AnnotationsViewEvent.EditButtonClicked) }
         delete.setOnClickListener { viewModel.process(AnnotationsViewEvent.DeleteButtonClicked) }
+        zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
 
     }
 
     override fun renderState(viewState: AnnotationsViewState) {
+        Log.i(TAG, "renderState: ${viewState.buttonState}")
+        when(viewState.buttonState) {
+            ButtonState.ZOOM -> {
+                enableZoom(true)
+            }
+            ButtonState.EDIT -> {
+                enableZoom(false)
+            }
+            ButtonState.DELETE -> {
+                enableZoom(true)
+            }
+        }
+    }
 
+    private fun enableZoom(bool: Boolean) {
+        image_editor.setOverScrollHorizontal(bool)
+        image_editor.setOverScrollVertical(bool)
+        image_editor.setScrollEnabled(bool)
+        image_editor.setHorizontalPanEnabled(bool)
+        image_editor.setVerticalPanEnabled(bool)
+        image_editor.isEditing = !bool
+        
     }
 
     override fun handleSideEffect(effect: AnnotationsViewEffect) {

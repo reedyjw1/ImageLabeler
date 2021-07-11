@@ -21,10 +21,25 @@ class AnnotationsViewModel private constructor(
 
             }
             AnnotationsViewEvent.EditButtonClicked -> {
-
+                setState {
+                    copy(
+                        buttonState = ButtonState.EDIT
+                    )
+                }
             }
             AnnotationsViewEvent.DeleteButtonClicked -> {
-
+                setState {
+                    copy(
+                        buttonState = ButtonState.DELETE
+                    )
+                }
+            }
+            AnnotationsViewEvent.ZoomButtonClicked -> {
+                setState {
+                    copy(
+                        buttonState = ButtonState.ZOOM
+                    )
+                }
             }
         }
     }

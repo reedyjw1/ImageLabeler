@@ -1,4 +1,4 @@
-package com.reedy.imagelabeler.view.overlay.model
+package com.reedy.imagelabeler.view.image
 
 data class Box(
     var group: String? = null ,
@@ -9,9 +9,8 @@ data class Box(
     var yMin: Float? = null,
     var xMax: Float? = null,
     var yMax: Float? = null,
-    var scale: Float? = null,
-    var absoluteXMin: Float? = null,
-    var absoluteXMax: Float? = null,
-    var absoluteYMin: Float? = null,
-    var absoluteYMax: Float? = null,
+    var relativeToBitmapXMax: Float? = null,
+    var relativeToBitmapXMin: Float? = null,
+    var relativeToBitmapYMax: Float? = null,
+    var relativeToBitmapYMin: Float? = null,
 )
