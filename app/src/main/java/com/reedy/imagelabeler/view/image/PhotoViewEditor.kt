@@ -23,6 +23,7 @@ class PhotoViewEditor(context: Context, attrs: AttributeSet): ZoomLayout(context
         children.firstOrNull()?.let {
             val overlay = it as Overlay
             overlay.isEditing = bool
+            overlay.photoViewWidth = this.width
         }
     }
 

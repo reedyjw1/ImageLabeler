@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import androidx.documentfile.provider.DocumentFile
@@ -44,7 +45,7 @@ class AnnotationsFragment:
         super.onViewCreated(view, savedInstanceState)
 
         image_editor.addBoxListener(this)
-        overlay.setImageResource(R.drawable.grid)
+        overlay.setImageResource(R.drawable.bd6c0bef4a473bfca44d1f6c83c95006)
 
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }
@@ -64,6 +65,12 @@ class AnnotationsFragment:
             }
             ButtonState.EDIT -> {
                 enableZoom(false)
+                val displayMetrics = DisplayMetrics()
+                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+                var width = displayMetrics.widthPixels
+                var height = displayMetrics.heightPixels
+                Log.i(TAG, "renderState: bounds width:${overlay.width}, height=${overlay.height}, scale=${(image_editor.matrix)}")
+                Log.i(TAG, "renderState: bitmap width:${(overlay.drawable as BitmapDrawable).bitmap.width}, height=${(overlay.drawable as BitmapDrawable).bitmap.height}")
             }
             ButtonState.DELETE -> {
                 enableZoom(true)
@@ -106,7 +113,23 @@ class AnnotationsFragment:
         boxes.forEachIndexed { index, box ->
             box.imageHeight = bitmap.height
             box.imageWidth = bitmap.width
+
+            val xMin = box.relativeToBitmapXMin ?: return
+            val yMin = box.relativeToBitmapYMin ?: return
+            val xMax = box.relativeToBitmapXMax ?: return
+            val yMax = box.relativeToBitmapYMax ?: return
+
+            if (xMin > xMax) {
+                box.relativeToBitmapXMin = xMax
+                box.relativeToBitmapXMax = xMin
+            }
+            if (yMin > yMax) {
+                box.relativeToBitmapYMin = yMax
+                box.relativeToBitmapYMax = yMin
+            }
+            
             val generatedText = AnnotationGenerators.getPascalVocAnnotation(box)
+
             val uri = treeUri ?: return@forEachIndexed
             val dir = DocumentFile.fromTreeUri(requireContext(), uri)
             val file = dir?.createFile("*/txt", "grid_${index}.xml") ?: return@forEachIndexed

@@ -40,15 +40,16 @@
     <com.reedy.imagelabeler.view.image.PhotoViewEditor
         android:id="@+id/image_editor"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@+id/project_structure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:transformation="centerCrop"
+        app:transformation="centerInside"
         app:transformationGravity="auto"
         app:alignment="center"
-        app:hasClickableChildren="true">
+        app:hasClickableChildren="true"
+        android:background="@color/black">
 
         <com.reedy.imagelabeler.view.image.Overlay
             android:id="@+id/overlay"
