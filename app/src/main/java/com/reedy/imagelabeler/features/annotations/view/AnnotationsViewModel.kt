@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
+import com.reedy.imagelabeler.extensions.addAndUpdate
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -21,10 +22,42 @@ class AnnotationsViewModel private constructor(
 
             }
             AnnotationsViewEvent.EditButtonClicked -> {
-
+                setState {
+                    copy(
+                        buttonState = ButtonState.EDIT
+                    )
+                }
             }
             AnnotationsViewEvent.DeleteButtonClicked -> {
+                setState {
+                    copy(
+                        buttonState = ButtonState.DELETE
+                    )
+                }
+            }
+            AnnotationsViewEvent.ZoomButtonClicked -> {
+                setState {
+                    copy(
+                        buttonState = ButtonState.ZOOM
+                    )
+                }
+            }
+            is AnnotationsViewEvent.OnBoxAdded -> {
+                // For updating the list while the box is still moving
+                emitEffect(AnnotationsViewEffect.UpdateBoxList(event.box))
 
+                // For finalizing the box list once the touch has been released
+                // Ensures that the view model is the ultimate source of truth
+                if (!event.onlyVisual) {
+                    setState {
+                        copy(
+                            boxes = boxes.addAndUpdate(event.box)
+                        )
+                    }
+                }
+            }
+            AnnotationsViewEvent.ExportFiles -> {
+                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.boxes))
             }
         }
     }

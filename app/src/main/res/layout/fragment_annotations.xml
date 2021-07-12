@@ -13,13 +13,15 @@
         app:layout_constraintEnd_toStartOf="@id/image_editor"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintWidth_percent=".25">
+        app:layout_constraintWidth_percent=".25"
+        android:elevation="4dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/export"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -35,33 +37,28 @@
 
     </FrameLayout>
 
-    <View
-        android:layout_width="2dp"
-        android:layout_height="match_parent"
-        android:background="@color/black"
-        app:layout_constraintStart_toEndOf="@id/project_structure" />
-
-    <com.reedy.imagelabeler.view.overlay.Overlay
+    <com.reedy.imagelabeler.view.image.PhotoViewEditor
         android:id="@+id/image_editor"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@+id/project_structure"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:transformation="centerInside"
+        app:transformationGravity="auto"
+        app:alignment="center"
+        app:hasClickableChildren="true"
+        android:background="@color/black">
 
-        <com.github.chrisbanes.photoview.PhotoView
-            android:id="@+id/image_view"
+        <com.reedy.imagelabeler.view.image.Overlay
+            android:id="@+id/overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <com.reedy.imagelabeler.view.overlay.TestingDraw
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
 
+    </com.reedy.imagelabeler.view.image.PhotoViewEditor>
 
-
-    </com.reedy.imagelabeler.view.overlay.Overlay>
 
     <FrameLayout
         android:id="@+id/controls"

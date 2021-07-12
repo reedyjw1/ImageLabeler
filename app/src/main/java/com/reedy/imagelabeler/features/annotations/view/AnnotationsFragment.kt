@@ -1,27 +1,34 @@
 package com.reedy.imagelabeler.features.annotations.view
 
-import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
-import com.reedy.imagelabeler.view.overlay.Box
-import com.reedy.imagelabeler.view.overlay.BoxAdded
-import com.reedy.imagelabeler.view.overlay.Overlay
+import com.reedy.imagelabeler.generator.AnnotationGenerators
+import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
+import java.io.FileOutputStream
 
 class AnnotationsFragment:
-    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations)
+    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations), BoxUpdatedListener
 {
     companion object {
         private const val TAG = "Annotations"
+        private const val REQUEST_CODE = 1274
     }
 
-    //TODO - fix float to int conversion for better accuracy, fix scalling issue preventing boxes from being drawn, allow boxes to be edited, resize boxes with zoom.
+    private var treeUri: Uri? = null
 
     private val navigator by lazy {
         val navHostFragment = requireActivity()
@@ -37,28 +44,122 @@ class AnnotationsFragment:
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image_editor.setOnBoxAddedListener(object : BoxAdded {
-            override fun onBoxAdded(box: Box) {
-                image_editor.boxes.add(box)
-                image_editor.invalidate()
-            }
-
-        })
-        image_view.setImageResource(R.drawable.test)
-
+        image_editor.addBoxListener(this)
+        overlay.setImageResource(R.drawable.bd6c0bef4a473bfca44d1f6c83c95006)
 
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }
         edit.setOnClickListener { viewModel.process(AnnotationsViewEvent.EditButtonClicked) }
         delete.setOnClickListener { viewModel.process(AnnotationsViewEvent.DeleteButtonClicked) }
+        zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
+        export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
 
+        askPermission()
     }
 
     override fun renderState(viewState: AnnotationsViewState) {
+        Log.i(TAG, "renderState: ${viewState.buttonState}")
+        when(viewState.buttonState) {
+            ButtonState.ZOOM -> {
+                enableZoom(true)
+            }
+            ButtonState.EDIT -> {
+                enableZoom(false)
+                val displayMetrics = DisplayMetrics()
+                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
+                var width = displayMetrics.widthPixels
+                var height = displayMetrics.heightPixels
+                Log.i(TAG, "renderState: bounds width:${overlay.width}, height=${overlay.height}, scale=${(image_editor.matrix)}")
+                Log.i(TAG, "renderState: bitmap width:${(overlay.drawable as BitmapDrawable).bitmap.width}, height=${(overlay.drawable as BitmapDrawable).bitmap.height}")
+            }
+            ButtonState.DELETE -> {
+                enableZoom(true)
+            }
+        }
+        image_editor.updateBoxList(viewState.boxes)
+    }
 
+    private fun enableZoom(bool: Boolean) {
+        image_editor.setOverScrollHorizontal(bool)
+        image_editor.setOverScrollVertical(bool)
+        image_editor.setScrollEnabled(bool)
+        image_editor.setHorizontalPanEnabled(bool)
+        image_editor.setVerticalPanEnabled(bool)
+        image_editor.isEditingEnabled(!bool)
+        
     }
 
     override fun handleSideEffect(effect: AnnotationsViewEffect) {
+        when(effect) {
+            is AnnotationsViewEffect.UpdateBoxList -> {
+                image_editor.updateBoxes(effect.box)
+            }
+            is AnnotationsViewEffect.ExportAnnotations -> export(effect.list)
+        }
+    }
 
+    private fun export(boxes: List<Box>) {
+        val uri = treeUri ?: return
+        val dir = DocumentFile.fromTreeUri(requireContext(), uri)
+        val file = dir?.createFile("*/image", "grid.jpg") ?: return
+        val bitmap = (overlay.drawable as BitmapDrawable).bitmap
+
+        requireActivity().contentResolver.openFileDescriptor(file.uri, "w")?.use { parcelFileDescriptor ->
+            FileOutputStream(parcelFileDescriptor.fileDescriptor).use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
+            }
+        }
+
+        boxes.forEachIndexed { index, box ->
+            box.imageHeight = bitmap.height
+            box.imageWidth = bitmap.width
+
+            val xMin = box.relativeToBitmapXMin ?: return
+            val yMin = box.relativeToBitmapYMin ?: return
+            val xMax = box.relativeToBitmapXMax ?: return
+            val yMax = box.relativeToBitmapYMax ?: return
+
+            if (xMin > xMax) {
+                box.relativeToBitmapXMin = xMax
+                box.relativeToBitmapXMax = xMin
+            }
+            if (yMin > yMax) {
+                box.relativeToBitmapYMin = yMax
+                box.relativeToBitmapYMax = yMin
+            }
+            
+            val generatedText = AnnotationGenerators.getPascalVocAnnotation(box)
+
+            val uri = treeUri ?: return@forEachIndexed
+            val dir = DocumentFile.fromTreeUri(requireContext(), uri)
+            val file = dir?.createFile("*/txt", "grid_${index}.xml") ?: return@forEachIndexed
+
+            requireActivity().contentResolver.openFileDescriptor(file.uri, "w")?.use { parcelFileDescriptor ->
+                FileOutputStream(parcelFileDescriptor.fileDescriptor).use {
+                    it.write(generatedText.toByteArray())
+                }
+            }
+        }
+    }
+
+    private fun askPermission() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+
+        startActivityForResult(intent, REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            if (data != null) {
+                //this is the uri user has provided us
+                treeUri = data.data
+
+            }
+        }
+    }
+
+    override fun onBoxAdded(box: Box, onlyVisual: Boolean) {
+        viewModel.process(AnnotationsViewEvent.OnBoxAdded(box, onlyVisual))
     }
 }
