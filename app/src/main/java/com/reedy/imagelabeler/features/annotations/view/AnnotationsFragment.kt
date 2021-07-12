@@ -116,7 +116,7 @@ class AnnotationsFragment:
     private fun export(boxes: List<Box>) {
         val uri = treeUri ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
-        val file = dir?.createFile("*/image", "grid.jpg") ?: return
+        val file = dir?.createFile("image", "grid.jpg") ?: return
         val bitmap = (overlay.drawable as BitmapDrawable).bitmap
 
         requireActivity().contentResolver.openFileDescriptor(file.uri, "w")?.use { parcelFileDescriptor ->
@@ -145,7 +145,7 @@ class AnnotationsFragment:
             
             val generatedText = AnnotationGenerators.getPascalVocAnnotation(box)
 
-            val xmlFile = dir.createFile("*/txt", "grid_${index}.xml") ?: return@forEachIndexed
+            val xmlFile = dir.createFile("application/xml", "grid_${index}.xml") ?: return@forEachIndexed
 
             requireActivity().contentResolver.openFileDescriptor(xmlFile.uri, "w")?.use { parcelFileDescriptor ->
                 FileOutputStream(parcelFileDescriptor.fileDescriptor).use {
