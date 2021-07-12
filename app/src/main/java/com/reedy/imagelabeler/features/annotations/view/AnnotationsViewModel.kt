@@ -3,10 +3,13 @@ package com.reedy.imagelabeler.features.annotations.view
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.addAndUpdate
 import com.reedy.imagelabeler.features.annotations.UiDocument
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -44,16 +47,21 @@ class AnnotationsViewModel private constructor(
                 }
             }
             is AnnotationsViewEvent.UpdateDirectory -> {
-                val dir: MutableList<UiDocument> = event.dir.map {
-                    UiDocument(name = it.name ?: "[No Name]", uri = it.uri)
-                }.toMutableList()
+                viewModelScope.launch(Dispatchers.Default) {
+                    val dir: MutableList<UiDocument> = event.dir.map {
+                        UiDocument(name = it.name ?: "[No Name]", uri = it.uri)
+                    }.toMutableList()
 
-                setState {
-                    copy(
-                        directoryName = event.name,
-                        directory = dir
-                    )
+                    setState {
+                        copy(
+                            directoryName = event.name,
+                            directory = dir
+                        )
+                    }
                 }
+            }
+            is AnnotationsViewEvent.RefreshDirectory -> {
+                emitEffect(AnnotationsViewEffect.RefreshDirectory)
             }
             is AnnotationsViewEvent.OnBoxAdded -> {
                 // For updating the list while the box is still moving
@@ -61,11 +69,13 @@ class AnnotationsViewModel private constructor(
 
                 // For finalizing the box list once the touch has been released
                 // Ensures that the view model is the ultimate source of truth
-                if (!event.onlyVisual) {
-                    setState {
-                        copy(
-                            boxes = boxes.addAndUpdate(event.box)
-                        )
+                viewModelScope.launch(Dispatchers.Default) {
+                    if (!event.onlyVisual) {
+                        setState {
+                            copy(
+                                boxes = boxes.addAndUpdate(event.box)
+                            )
+                        }
                     }
                 }
             }

@@ -21,6 +21,7 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     object DeleteButtonClicked: AnnotationsViewEvent()
     object ZoomButtonClicked: AnnotationsViewEvent()
     object ExportFiles: AnnotationsViewEvent()
+    object RefreshDirectory: AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String): AnnotationsViewEvent()
 }
@@ -28,4 +29,5 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
 sealed class AnnotationsViewEffect(): ViewStateEffect {
     data class UpdateBoxList(val box: Box): AnnotationsViewEffect()
     data class ExportAnnotations(val list: List<Box>): AnnotationsViewEffect()
+    object RefreshDirectory: AnnotationsViewEffect()
 }

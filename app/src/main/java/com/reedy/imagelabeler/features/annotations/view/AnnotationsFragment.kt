@@ -58,6 +58,7 @@ class AnnotationsFragment:
         delete.setOnClickListener { viewModel.process(AnnotationsViewEvent.DeleteButtonClicked) }
         zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
         export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
+        refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
         directory_recycler.adapter = adapter
         askPermission()
 
@@ -71,20 +72,12 @@ class AnnotationsFragment:
             }
             ButtonState.EDIT -> {
                 enableZoom(false)
-                val displayMetrics = DisplayMetrics()
-                requireActivity().windowManager.defaultDisplay.getMetrics(displayMetrics)
-                var width = displayMetrics.widthPixels
-                var height = displayMetrics.heightPixels
-                Log.i(TAG, "renderState: bounds width:${overlay.width}, height=${overlay.height}, scale=${(image_editor.matrix)}")
-                Log.i(TAG, "renderState: bitmap width:${(overlay.drawable as BitmapDrawable).bitmap.width}, height=${(overlay.drawable as BitmapDrawable).bitmap.height}")
             }
             ButtonState.DELETE -> {
-                initDir()
                 enableZoom(true)
             }
         }
         image_editor.updateBoxList(viewState.boxes)
-        Log.i(TAG, "renderState: ${viewState.directory}")
         adapter.submitList(viewState.directory)
         title.text = viewState.directoryName
     }
@@ -105,6 +98,9 @@ class AnnotationsFragment:
                 image_editor.updateBoxes(effect.box)
             }
             is AnnotationsViewEffect.ExportAnnotations -> export(effect.list)
+            is AnnotationsViewEffect.RefreshDirectory -> {
+                initDir()
+            }
         }
     }
 
