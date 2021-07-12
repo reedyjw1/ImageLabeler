@@ -145,16 +145,15 @@ class AnnotationsFragment:
             
             val generatedText = AnnotationGenerators.getPascalVocAnnotation(box)
 
-            val uri = treeUri ?: return@forEachIndexed
-            val dir = DocumentFile.fromTreeUri(requireContext(), uri)
-            val file = dir?.createFile("*/txt", "grid_${index}.xml") ?: return@forEachIndexed
+            val xmlFile = dir.createFile("*/txt", "grid_${index}.xml") ?: return@forEachIndexed
 
-            requireActivity().contentResolver.openFileDescriptor(file.uri, "w")?.use { parcelFileDescriptor ->
+            requireActivity().contentResolver.openFileDescriptor(xmlFile.uri, "w")?.use { parcelFileDescriptor ->
                 FileOutputStream(parcelFileDescriptor.fileDescriptor).use {
                     it.write(generatedText.toByteArray())
                 }
             }
         }
+        initDir()
     }
 
     private fun askPermission() {
