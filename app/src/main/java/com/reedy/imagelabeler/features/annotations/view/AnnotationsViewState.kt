@@ -1,13 +1,17 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import androidx.documentfile.provider.DocumentFile
 import com.reedy.imagelabeler.arch.ViewState
 import com.reedy.imagelabeler.arch.ViewStateEffect
 import com.reedy.imagelabeler.arch.ViewStateEvent
+import com.reedy.imagelabeler.features.annotations.UiDocument
 import com.reedy.imagelabeler.model.Box
 
 data class AnnotationsViewState(
     val buttonState: ButtonState = ButtonState.ZOOM,
-    val boxes: MutableList<Box> = mutableListOf()
+    val boxes: MutableList<Box> = mutableListOf(),
+    val directory: MutableList<UiDocument> = mutableListOf(),
+    val directoryName: String = ""
 ): ViewState
 
 sealed class AnnotationsViewEvent(): ViewStateEvent {
@@ -18,6 +22,7 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     object ZoomButtonClicked: AnnotationsViewEvent()
     object ExportFiles: AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
+    data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String): AnnotationsViewEvent()
 }
 
 sealed class AnnotationsViewEffect(): ViewStateEffect {

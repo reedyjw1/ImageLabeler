@@ -5,4 +5,6 @@
     <string name="annotations">Annotations</string>
 
     <string name="export">Export Files</string>
+    <string name="folderDesc">Folder Icon</string>
+    <string name="fileDesc">Text Snippet Icon</string>
 </resources>

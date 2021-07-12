@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
@@ -18,6 +19,7 @@ import com.reedy.imagelabeler.generator.AnnotationGenerators
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
+import java.io.File
 import java.io.FileOutputStream
 
 class AnnotationsFragment:
@@ -41,20 +43,24 @@ class AnnotationsFragment:
         AnnotationsViewModelFactory(navigator)
     }
 
+    private val adapter by lazy {
+        DirectoryAdapter()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         image_editor.addBoxListener(this)
         overlay.setImageResource(R.drawable.bd6c0bef4a473bfca44d1f6c83c95006)
-
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }
         edit.setOnClickListener { viewModel.process(AnnotationsViewEvent.EditButtonClicked) }
         delete.setOnClickListener { viewModel.process(AnnotationsViewEvent.DeleteButtonClicked) }
         zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
         export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
-
+        directory_recycler.adapter = adapter
         askPermission()
+
     }
 
     override fun renderState(viewState: AnnotationsViewState) {
@@ -73,10 +79,14 @@ class AnnotationsFragment:
                 Log.i(TAG, "renderState: bitmap width:${(overlay.drawable as BitmapDrawable).bitmap.width}, height=${(overlay.drawable as BitmapDrawable).bitmap.height}")
             }
             ButtonState.DELETE -> {
+                initDir()
                 enableZoom(true)
             }
         }
         image_editor.updateBoxList(viewState.boxes)
+        Log.i(TAG, "renderState: ${viewState.directory}")
+        adapter.submitList(viewState.directory)
+        title.text = viewState.directoryName
     }
 
     private fun enableZoom(bool: Boolean) {
@@ -96,6 +106,15 @@ class AnnotationsFragment:
             }
             is AnnotationsViewEffect.ExportAnnotations -> export(effect.list)
         }
+    }
+
+    private fun initDir() {
+        val uri = treeUri ?: return
+        val dir = DocumentFile.fromTreeUri(requireContext(), uri)
+        val files = dir?.listFiles() ?: return
+        val name = dir.name ?: return
+        viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name))
+
     }
 
     private fun export(boxes: List<Box>) {
@@ -154,6 +173,7 @@ class AnnotationsFragment:
             if (data != null) {
                 //this is the uri user has provided us
                 treeUri = data.data
+                initDir()
 
             }
         }

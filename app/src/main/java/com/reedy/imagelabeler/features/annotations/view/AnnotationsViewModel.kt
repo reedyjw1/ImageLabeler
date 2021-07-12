@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.addAndUpdate
+import com.reedy.imagelabeler.features.annotations.UiDocument
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -39,6 +40,18 @@ class AnnotationsViewModel private constructor(
                 setState {
                     copy(
                         buttonState = ButtonState.ZOOM
+                    )
+                }
+            }
+            is AnnotationsViewEvent.UpdateDirectory -> {
+                val dir: MutableList<UiDocument> = event.dir.map {
+                    UiDocument(name = it.name ?: "[No Name]", uri = it.uri)
+                }.toMutableList()
+
+                setState {
+                    copy(
+                        directoryName = event.name,
+                        directory = dir
                     )
                 }
             }
