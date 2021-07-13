@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 data class UiDocument(
     val name: String,
     val uri: Uri,
+    var selected: Boolean = false
 ) {
     companion object {
         val DIFFER = object: DiffUtil.ItemCallback<UiDocument>() {

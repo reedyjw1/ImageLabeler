@@ -1,5 +1,6 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.addAndUpdate
+import com.reedy.imagelabeler.extensions.updateSelected
 import com.reedy.imagelabeler.features.annotations.UiDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,6 +64,16 @@ class AnnotationsViewModel private constructor(
             }
             is AnnotationsViewEvent.RefreshDirectory -> {
                 emitEffect(AnnotationsViewEffect.RefreshDirectory)
+            }
+            is AnnotationsViewEvent.FileClicked -> {
+                viewModelScope.launch(Dispatchers.Default) {
+                    setState {
+                        copy(
+                            directory = directory.updateSelected(event.document)
+                        )
+                    }
+                    Log.i("VM", "process: ${viewState.value.directory}")
+                }
             }
             is AnnotationsViewEvent.OnBoxAdded -> {
                 // For updating the list while the box is still moving

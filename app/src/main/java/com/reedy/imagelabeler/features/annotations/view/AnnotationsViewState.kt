@@ -24,6 +24,7 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     object RefreshDirectory: AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String): AnnotationsViewEvent()
+    data class FileClicked(val document: UiDocument): AnnotationsViewEvent()
 }
 
 sealed class AnnotationsViewEffect(): ViewStateEffect {

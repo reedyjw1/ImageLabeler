@@ -44,7 +44,9 @@ class AnnotationsFragment:
     }
 
     private val adapter by lazy {
-        DirectoryAdapter()
+        DirectoryAdapter().apply {
+            onClick = { viewModel.process(AnnotationsViewEvent.FileClicked(it)) }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
