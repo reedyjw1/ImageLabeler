@@ -1,5 +1,6 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.reedy.imagelabeler.arch.ViewState
 import com.reedy.imagelabeler.arch.ViewStateEffect
@@ -23,12 +24,13 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     object ExportFiles: AnnotationsViewEvent()
     object RefreshDirectory: AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
-    data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String): AnnotationsViewEvent()
+    data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String, val isFirstUpdate: Boolean = false): AnnotationsViewEvent()
     data class FileClicked(val document: UiDocument): AnnotationsViewEvent()
 }
 
 sealed class AnnotationsViewEffect(): ViewStateEffect {
     data class UpdateBoxList(val box: Box): AnnotationsViewEffect()
     data class ExportAnnotations(val list: List<Box>): AnnotationsViewEffect()
+    data class LoadImage(val doc: UiDocument?): AnnotationsViewEffect()
     object RefreshDirectory: AnnotationsViewEffect()
 }

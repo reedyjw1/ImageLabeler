@@ -3,13 +3,16 @@ package com.reedy.imagelabeler.features.annotations.view
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
@@ -21,6 +24,7 @@ import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.Exception
 
 class AnnotationsFragment:
     BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations), BoxUpdatedListener
@@ -39,13 +43,16 @@ class AnnotationsFragment:
 
         navHostFragment.navController
     }
+
     override val viewModel: AnnotationsViewModel by viewModels {
         AnnotationsViewModelFactory(navigator)
     }
 
     private val adapter by lazy {
         DirectoryAdapter().apply {
-            onClick = { viewModel.process(AnnotationsViewEvent.FileClicked(it)) }
+            onClick = {
+                viewModel.process(AnnotationsViewEvent.FileClicked(it))
+            }
         }
     }
 
@@ -53,7 +60,6 @@ class AnnotationsFragment:
         super.onViewCreated(view, savedInstanceState)
 
         image_editor.addBoxListener(this)
-        overlay.setImageResource(R.drawable.bd6c0bef4a473bfca44d1f6c83c95006)
         left.setOnClickListener { viewModel.process(AnnotationsViewEvent.LeftButtonClicked) }
         right.setOnClickListener { viewModel.process(AnnotationsViewEvent.RightButtonClicked) }
         edit.setOnClickListener { viewModel.process(AnnotationsViewEvent.EditButtonClicked) }
@@ -67,7 +73,6 @@ class AnnotationsFragment:
     }
 
     override fun renderState(viewState: AnnotationsViewState) {
-        Log.i(TAG, "renderState: ${viewState.buttonState}")
         when(viewState.buttonState) {
             ButtonState.ZOOM -> {
                 enableZoom(true)
@@ -103,15 +108,37 @@ class AnnotationsFragment:
             is AnnotationsViewEffect.RefreshDirectory -> {
                 initDir()
             }
+            is AnnotationsViewEffect.LoadImage -> {
+                if (effect.doc == null) {
+                    image_editor.visibility = View.INVISIBLE
+                    return
+                }
+                if (!effect.doc.type.contains("image")) {
+                    image_editor.visibility = View.INVISIBLE
+                    return
+                }
+                image_editor.visibility = View.VISIBLE
+                try {
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().contentResolver, effect.doc.uri))
+                    } else {
+                        MediaStore.Images.Media.getBitmap(requireContext().contentResolver, effect.doc.uri)
+                    }
+                    overlay.setImageDrawable(bitmap.toDrawable(requireActivity().resources))
+                } catch (e: Exception) {
+                    Log.e(TAG, "handleSideEffect: Could not display image=${e.localizedMessage}")
+                    image_editor.visibility = View.INVISIBLE
+                }
+            }
         }
     }
 
-    private fun initDir() {
+    private fun initDir(isFirst: Boolean = false) {
         val uri = treeUri ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
         val files = dir?.listFiles() ?: return
         val name = dir.name ?: return
-        viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name))
+        viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name, isFirst))
 
     }
 
@@ -170,8 +197,7 @@ class AnnotationsFragment:
             if (data != null) {
                 //this is the uri user has provided us
                 treeUri = data.data
-                initDir()
-
+                initDir(true)
             }
         }
     }

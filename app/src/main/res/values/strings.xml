@@ -7,4 +7,5 @@
     <string name="export">Export Files</string>
     <string name="folderDesc">Folder Icon</string>
     <string name="fileDesc">Text Snippet Icon</string>
+    <string name="not_supported">File type not supported.</string>
 </resources>

@@ -2,10 +2,12 @@ package com.reedy.imagelabeler.features.annotations
 
 import android.net.Uri
 import androidx.recyclerview.widget.DiffUtil
+import java.net.URI
 
 data class UiDocument(
     val name: String,
     val uri: Uri,
+    val type: String,
     var selected: Boolean = false
 ) {
     companion object {

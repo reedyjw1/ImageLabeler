@@ -1,5 +1,6 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +31,11 @@ class DirectoryVH(itemView: View): RecyclerView.ViewHolder(itemView) {
 
     fun onBind(data: UiDocument) {
         itemView.name.text = data.name
-        if (data.selected) itemView.layout.setBackgroundColor(itemView.context.getColor(R.color.light_blue_600))
+        if (data.selected)
+            itemView.layout.setBackgroundColor(itemView.context.getColor(R.color.light_blue_600))
+        else {
+            itemView.layout.setBackgroundColor(itemView.context.getColor(R.color.white))
+        }
         itemView.setOnClickListener { onClick?.invoke(data) }
     }
 

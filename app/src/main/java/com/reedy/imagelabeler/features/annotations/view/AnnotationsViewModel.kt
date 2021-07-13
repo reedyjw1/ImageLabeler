@@ -8,10 +8,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.addAndUpdate
+import com.reedy.imagelabeler.extensions.findFirstImage
 import com.reedy.imagelabeler.extensions.updateSelected
 import com.reedy.imagelabeler.features.annotations.UiDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -51,7 +53,7 @@ class AnnotationsViewModel private constructor(
             is AnnotationsViewEvent.UpdateDirectory -> {
                 viewModelScope.launch(Dispatchers.Default) {
                     val dir: MutableList<UiDocument> = event.dir.map {
-                        UiDocument(name = it.name ?: "[No Name]", uri = it.uri)
+                        UiDocument(name = it.name ?: "[No Name]", uri = it.uri, type = it.type ?: "none")
                     }.toMutableList()
 
                     setState {
@@ -59,6 +61,12 @@ class AnnotationsViewModel private constructor(
                             directoryName = event.name,
                             directory = dir
                         )
+                    }
+                    if (event.isFirstUpdate) {
+                        withContext(Dispatchers.Main) {
+                            val document = viewState.value.directory.findFirstImage()
+                            emitEffect(AnnotationsViewEffect.LoadImage(document))
+                        }
                     }
                 }
             }
@@ -72,8 +80,8 @@ class AnnotationsViewModel private constructor(
                             directory = directory.updateSelected(event.document)
                         )
                     }
-                    Log.i("VM", "process: ${viewState.value.directory}")
                 }
+                emitEffect(AnnotationsViewEffect.LoadImage(event.document))
             }
             is AnnotationsViewEvent.OnBoxAdded -> {
                 // For updating the list while the box is still moving

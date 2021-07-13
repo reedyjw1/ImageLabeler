@@ -16,12 +16,24 @@ fun <T> MutableList<T>.addAndUpdate(newValue: T): MutableList<T> {
 
 fun MutableList<UiDocument>.updateSelected(document: UiDocument): MutableList<UiDocument> {
     return this.map {
-        if (it.uri == document.uri) {
-            UiDocument(it.name, it.uri, true)
+        if (it.uri == document.uri && it.name == document.name) {
+            UiDocument(it.name, it.uri, it.type, true)
         } else {
-            UiDocument(it.name, it.uri, false)
+            UiDocument(it.name, it.uri, it.type, false)
         }
     }.toMutableList()
+}
+
+fun MutableList<UiDocument>.findFirstImage(): UiDocument? {
+    val extensions = arrayOf("jpg", "jpeg", "png", "bmp")
+    forEach { doc ->
+        extensions.forEach { ext ->
+            if (doc.name.endsWith(ext)) {
+                return doc
+            }
+        }
+    }
+    return null
 }
 
 
