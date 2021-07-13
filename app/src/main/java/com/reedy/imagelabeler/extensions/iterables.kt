@@ -36,4 +36,35 @@ fun MutableList<UiDocument>.findFirstImage(): UiDocument? {
     return null
 }
 
+fun MutableList<UiDocument>.findNext(doc: UiDocument): UiDocument? {
+    this.forEachIndexed { index, uiDocument ->
+        if (uiDocument.uri == doc.uri) {
+            if (index != size-1) {
+                return this[index+1]
+            }
+        }
+    }
+    return null
+}
+
+fun MutableList<UiDocument>.findPrevious(doc: UiDocument): UiDocument? {
+    this.forEachIndexed { index, uiDocument ->
+        if (uiDocument.uri == doc.uri) {
+            if (index != 0) {
+                return this[index-1]
+            }
+        }
+    }
+    return null
+}
+
+fun MutableList<UiDocument>.findSelected(): UiDocument? {
+    this.forEach {
+        if (it.selected) {
+            return it
+        }
+    }
+    return null
+}
+
 

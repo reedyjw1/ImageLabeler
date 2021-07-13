@@ -7,9 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
-import com.reedy.imagelabeler.extensions.addAndUpdate
-import com.reedy.imagelabeler.extensions.findFirstImage
-import com.reedy.imagelabeler.extensions.updateSelected
+import com.reedy.imagelabeler.extensions.*
 import com.reedy.imagelabeler.features.annotations.UiDocument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,10 +21,11 @@ class AnnotationsViewModel private constructor(
 ){
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
-            AnnotationsViewEvent.LeftButtonClicked -> {
-
+            is AnnotationsViewEvent.LeftButtonClicked -> {
+                leftOrRight(false)
             }
-            AnnotationsViewEvent.RightButtonClicked -> {
+            is AnnotationsViewEvent.RightButtonClicked -> {
+                leftOrRight(true)
 
             }
             AnnotationsViewEvent.EditButtonClicked -> {
@@ -64,7 +63,12 @@ class AnnotationsViewModel private constructor(
                     }
                     if (event.isFirstUpdate) {
                         withContext(Dispatchers.Main) {
-                            val document = viewState.value.directory.findFirstImage()
+                            val document = viewState.value.directory.findFirstImage() ?: return@withContext
+                            setState {
+                                copy(
+                                    directory = directory.updateSelected(document)
+                                )
+                            }
                             emitEffect(AnnotationsViewEffect.LoadImage(document))
                         }
                     }
@@ -103,6 +107,21 @@ class AnnotationsViewModel private constructor(
                 emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.boxes))
             }
         }
+    }
+
+    fun leftOrRight(right: Boolean) {
+        val currentDisplay = viewState.value.directory.findSelected() ?: return
+        val document = if (right)
+            viewState.value.directory.findNext(currentDisplay) ?: return
+        else
+            viewState.value.directory.findPrevious(currentDisplay) ?: return
+        setState {
+            copy(
+                boxes = mutableListOf(),
+                directory = directory.updateSelected(document)
+            )
+        }
+        emitEffect(AnnotationsViewEffect.LoadImage(document))
     }
 
     companion object {
