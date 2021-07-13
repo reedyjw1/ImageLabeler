@@ -1,11 +1,17 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
-import com.reedy.imagelabeler.extensions.addAndUpdate
+import com.reedy.imagelabeler.extensions.*
+import com.reedy.imagelabeler.features.annotations.UiDocument
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -15,10 +21,11 @@ class AnnotationsViewModel private constructor(
 ){
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
-            AnnotationsViewEvent.LeftButtonClicked -> {
-
+            is AnnotationsViewEvent.LeftButtonClicked -> {
+                leftOrRight(false)
             }
-            AnnotationsViewEvent.RightButtonClicked -> {
+            is AnnotationsViewEvent.RightButtonClicked -> {
+                leftOrRight(true)
 
             }
             AnnotationsViewEvent.EditButtonClicked -> {
@@ -42,17 +49,57 @@ class AnnotationsViewModel private constructor(
                     )
                 }
             }
+            is AnnotationsViewEvent.UpdateDirectory -> {
+                viewModelScope.launch(Dispatchers.Default) {
+                    val dir: MutableList<UiDocument> = event.dir.map {
+                        UiDocument(name = it.name ?: "[No Name]", uri = it.uri, type = it.type ?: "none")
+                    }.toMutableList()
+
+                    setState {
+                        copy(
+                            directoryName = event.name,
+                            directory = dir
+                        )
+                    }
+                    if (event.isFirstUpdate) {
+                        withContext(Dispatchers.Main) {
+                            val document = viewState.value.directory.findFirstImage() ?: return@withContext
+                            setState {
+                                copy(
+                                    directory = directory.updateSelected(document)
+                                )
+                            }
+                            emitEffect(AnnotationsViewEffect.LoadImage(document))
+                        }
+                    }
+                }
+            }
+            is AnnotationsViewEvent.RefreshDirectory -> {
+                emitEffect(AnnotationsViewEffect.RefreshDirectory)
+            }
+            is AnnotationsViewEvent.FileClicked -> {
+                viewModelScope.launch(Dispatchers.Default) {
+                    setState {
+                        copy(
+                            directory = directory.updateSelected(event.document)
+                        )
+                    }
+                }
+                emitEffect(AnnotationsViewEffect.LoadImage(event.document))
+            }
             is AnnotationsViewEvent.OnBoxAdded -> {
                 // For updating the list while the box is still moving
                 emitEffect(AnnotationsViewEffect.UpdateBoxList(event.box))
 
                 // For finalizing the box list once the touch has been released
                 // Ensures that the view model is the ultimate source of truth
-                if (!event.onlyVisual) {
-                    setState {
-                        copy(
-                            boxes = boxes.addAndUpdate(event.box)
-                        )
+                viewModelScope.launch(Dispatchers.Default) {
+                    if (!event.onlyVisual) {
+                        setState {
+                            copy(
+                                boxes = boxes.addAndUpdate(event.box)
+                            )
+                        }
                     }
                 }
             }
@@ -60,6 +107,21 @@ class AnnotationsViewModel private constructor(
                 emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.boxes))
             }
         }
+    }
+
+    fun leftOrRight(right: Boolean) {
+        val currentDisplay = viewState.value.directory.findSelected() ?: return
+        val document = if (right)
+            viewState.value.directory.findNext(currentDisplay) ?: return
+        else
+            viewState.value.directory.findPrevious(currentDisplay) ?: return
+        setState {
+            copy(
+                boxes = mutableListOf(),
+                directory = directory.updateSelected(document)
+            )
+        }
+        emitEffect(AnnotationsViewEffect.LoadImage(document))
     }
 
     companion object {
