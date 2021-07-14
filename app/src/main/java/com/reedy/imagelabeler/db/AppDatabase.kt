@@ -1,6 +1,13 @@
 package com.reedy.imagelabeler.db
 
-/*@Database(entities = [Annotation::class], version = 1)
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.reedy.imagelabeler.model.ImageData
+
+@Database(entities = [ImageData::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
 
@@ -8,5 +15,5 @@ abstract class AppDatabase: RoomDatabase() {
         fun getInstance(context: Context): AppDatabase = Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, "annotations.db").build()
     }
 
-    abstract fun annotationsDao(): AnnotationDao
-}*/
+    abstract fun imageDataDao(): ImageDataDao
+}

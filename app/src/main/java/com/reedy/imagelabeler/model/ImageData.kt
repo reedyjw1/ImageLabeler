@@ -1,9 +1,13 @@
 package com.reedy.imagelabeler.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
+@Entity
 data class ImageData(
-    var uid: String? = UUID.randomUUID().toString(),
+    @PrimaryKey
+    var uid: String = UUID.randomUUID().toString(),
     var annotation: Annotation = Annotation(),
     var bitmapUri: String = "",
     var directoryUri: String = ""
