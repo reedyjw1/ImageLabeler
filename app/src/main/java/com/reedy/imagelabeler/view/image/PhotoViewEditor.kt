@@ -23,7 +23,6 @@ class PhotoViewEditor(context: Context, attrs: AttributeSet): ZoomLayout(context
         children.firstOrNull()?.let {
             val overlay = it as Overlay
             overlay.isEditing = bool
-            overlay.photoViewWidth = this.width
         }
     }
 
@@ -34,7 +33,7 @@ class PhotoViewEditor(context: Context, attrs: AttributeSet): ZoomLayout(context
             if (original == null) {
                 overlay.boxes.add(box)
             } else {
-                val newList = overlay.boxes.replace(box) {original -> original.uid == box.uid}
+                val newList = overlay.boxes.replace(box) {ogBox -> ogBox.uid == box.uid}
                 overlay.boxes = newList.toMutableList()
                 overlay.invalidate()
             }

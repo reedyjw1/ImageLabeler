@@ -162,7 +162,7 @@ class AnnotationsFragment:
             annotation.imageHeight = bitmap.height
             annotation.imageWidth = bitmap.width
 
-            val xMin = box.relativeToBitmapXMin ?: return
+            /*val xMin = box.relativeToBitmapXMin ?: return
             val yMin = box.relativeToBitmapYMin ?: return
             val xMax = box.relativeToBitmapXMax ?: return
             val yMax = box.relativeToBitmapYMax ?: return
@@ -174,7 +174,7 @@ class AnnotationsFragment:
             if (yMin > yMax) {
                 box.relativeToBitmapYMin = yMax
                 box.relativeToBitmapYMax = yMin
-            }
+            }*/
             
             val generatedText = AnnotationGenerators.getPascalVocAnnotation(box, annotation)
 

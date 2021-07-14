@@ -24,10 +24,10 @@ object AnnotationGenerators {
                 "\t\t<truncated>${annotation.truncated}</truncated>\n" +
                 "\t\t<difficult>${annotation.difficult}</difficult>\n" +
                 "\t\t<bndbox>\n" +
-                "\t\t\t<xmin>${box.relativeToBitmapXMin}</xmin>\n" +
-                "\t\t\t<xmax>${box.relativeToBitmapXMax}</xmax>\n" +
-                "\t\t\t<ymin>${box.relativeToBitmapYMin}</ymin>\n" +
-                "\t\t\t<ymax>${box.relativeToBitmapYMax}</ymax>\n" +
+                "\t\t\t<xmin>${box.xMin}</xmin>\n" +
+                "\t\t\t<xmax>${box.xMax}</xmax>\n" +
+                "\t\t\t<ymin>${box.yMin}</ymin>\n" +
+                "\t\t\t<ymax>${box.yMax}</ymax>\n" +
                 "\t\t</bndbox>\n" +
                 "\t</object>\n" +
                 "</annotation>"

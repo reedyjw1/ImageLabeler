@@ -16,8 +16,7 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
 
     var boxes = mutableListOf<Box>()
     private var paint: Paint = Paint()
-    var photoViewWidth: Int = 1
-    private var box: Box? = null
+    private var box: Box = Box()
     var isEditing = false
     var boxListener : BoxUpdatedListener? = null
 
@@ -37,14 +36,12 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         boxes.forEach { box ->
-            val xMin = box.xMin ?: return
-            val xMax = box.xMax ?: return
-            val yMin = box.yMin ?: return
-            val yMax = box.yMax ?: return
+            val xMin = box.xMin / box.xScale
+            val xMax = box.xMax / box.xScale
+            val yMin = box.yMin / box.yScale
+            val yMax = box.yMax / box.yScale
 
-            canvas?.let {
-                it.drawRect(xMin, yMax, xMax, yMin, paint)
-            }
+            canvas?.drawRect(xMin, yMax, xMax, yMin, paint)
         }
     }
 
@@ -53,10 +50,8 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val translationX = (width/2) - (drawable as BitmapDrawable).bitmap.width/2
         val xScale = (drawable as BitmapDrawable).bitmap.width.toFloat() / width.toFloat()
         val yScale = (drawable as BitmapDrawable).bitmap.height.toFloat() / height.toFloat()
-        val translationY = (height/2) - (drawable as BitmapDrawable).bitmap.height/2
         val touchX = event?.x ?: return true
         val touchY = event.y
 
@@ -65,71 +60,32 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
         when(event.action) {
             MotionEvent.ACTION_UP -> {
                 Log.i(TAG, "onTouchEvent: up")
-                box?.xMax = touchX
-                box?.yMax = touchY
-                box?.relativeToBitmapXMax = (touchX * xScale).toInt()
-                box?.relativeToBitmapYMax = (touchY * yScale).toInt()
+                box.xMax = (touchX * xScale)
+                box.yMax = (touchY * yScale)
 
-                Log.i(TAG, "before width - handleTouchEvent: $box")
-                val x2 = box?.relativeToBitmapXMax ?: return true
-                val x1 = box?.relativeToBitmapXMin ?: return true
-                val y2 = box?.relativeToBitmapYMax ?: return true
-                val y1 = box?.relativeToBitmapYMin?: return true
+                box.width = abs(box.xMax - box.xMin).toInt()
+                box.height = abs(box.yMax - box.yMin).toInt()
 
-                box?.width = abs(x2 - x1)
-                box?.height = abs(y2 - y1)
-                Log.i(TAG, "handleTouchEvent: box=$box")
-                val notNullBox = box ?: return true
-
-                box?.let { box ->
-                    Log.i(TAG, "handleTouchEvent: final box=$box, listener=$boxListener")
-                    boxListener?.onBoxAdded(box, false)
-                    //boxes.add(box)
-                    invalidate()
-                }
-                box = null
+                boxListener?.onBoxAdded(box, false)
+                invalidate()
+                box = Box()
             }
             MotionEvent.ACTION_DOWN -> {
                 box = Box()
-                box?.xMin = touchX
-                box?.yMin = touchY
-
-                val scale = width/photoViewWidth
-                val centerOfOverlay = Pair(width/2, height/2)
-                val centerOfPhoto = Pair((drawable as BitmapDrawable).bitmap.width/2, (drawable as BitmapDrawable).bitmap.height/2)
-                Log.i(TAG, "onTouchEvent: centerOfOverlau=$centerOfOverlay, centerOfImage=$centerOfPhoto")
-
-                box?.relativeToBitmapXMin = (touchX * xScale).toInt()
-                box?.relativeToBitmapYMin = (touchY * yScale).toInt()
-                Log.i(TAG, "handleTouchEvent: box=$box")
+                box.xMin = touchX
+                box.yMin = touchY
             }
             MotionEvent.ACTION_MOVE -> {
-                box?.xMax = touchX
-                box?.yMax = touchY
-                box?.relativeToBitmapXMax = (touchX * xScale).toInt()
-                box?.relativeToBitmapYMax = (touchY * yScale).toInt()
+                box.xMax = (touchX * xScale)
+                box.yMax = (touchY * yScale)
+                box.xScale = xScale
+                box.yScale = yScale
 
-                Log.i(TAG, "before width - handleTouchEvent: $box")
-                val xMax = box?.xMax ?: return true
-                val xMin = box?.xMin ?: return true
-                val yMax = box?.yMax ?: return true
-                val yMin = box?.yMin ?: return true
+                box.width = abs(box.xMax - box.xMin).toInt()
+                box.height = abs(box.yMax - box.yMin).toInt()
 
-                box?.width = abs(xMax -xMin).toInt()
-                box?.height = abs(yMax - yMin).toInt()
-                Log.i(TAG, "handleTouchEvent: box=$box")
-                val notNullBox = box ?: return true
-
-                box?.label = "box"
-                box?.group = "test"
-                box?.fileName = "grid.jpg"
-
-                box?.let { box ->
-                    Log.i(TAG, "handleTouchEvent:  box=$box")
-                    boxListener?.onBoxAdded(box, true)
-                    //boxes.add(box)
-                    invalidate()
-                }
+                boxListener?.onBoxAdded(box, true)
+                invalidate()
             }
         }
         return true
