@@ -5,7 +5,6 @@ import com.reedy.imagelabeler.arch.ViewState
 import com.reedy.imagelabeler.arch.ViewStateEffect
 import com.reedy.imagelabeler.arch.ViewStateEvent
 import com.reedy.imagelabeler.features.annotations.UiDocument
-import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 
@@ -16,7 +15,7 @@ data class AnnotationsViewState(
     val directoryName: String = ""
 ): ViewState
 
-sealed class AnnotationsViewEvent(): ViewStateEvent {
+sealed class AnnotationsViewEvent: ViewStateEvent {
     object LeftButtonClicked: AnnotationsViewEvent()
     object RightButtonClicked: AnnotationsViewEvent()
     object EditButtonClicked: AnnotationsViewEvent()
@@ -31,9 +30,9 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     data class FileClicked(val document: UiDocument): AnnotationsViewEvent()
 }
 
-sealed class AnnotationsViewEffect(): ViewStateEffect {
+sealed class AnnotationsViewEffect: ViewStateEffect {
     data class UpdateBoxList(val box: Box): AnnotationsViewEffect()
-    data class ExportAnnotations(val annotation: Annotation): AnnotationsViewEffect()
+    data class ExportAnnotations(val annotation: ImageData): AnnotationsViewEffect()
     data class LoadImage(val doc: UiDocument?): AnnotationsViewEffect()
     object RefreshDirectory: AnnotationsViewEffect()
 }

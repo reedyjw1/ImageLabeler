@@ -2,15 +2,19 @@ package com.reedy.imagelabeler.db
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.Box
-import com.reedy.imagelabeler.model.ImageData
 
 class Converters {
 
     @TypeConverter
-    fun toJson(annotation: Annotation) = Gson().toJson(annotation)
+    fun listToJson(value: List<Box>?): String = Gson().toJson(value)
 
     @TypeConverter
-    fun fromJson(value: String) = Gson().fromJson(value, Annotation::class.java)
+    fun jsonToList(value: String): MutableList<Box> = Gson().fromJson(value, Array<Box>::class.java).toMutableList()
+
+    @TypeConverter
+    fun toJson(box: Box): String = Gson().toJson(box)
+
+    @TypeConverter
+    fun fromJson(value: String): Box = Gson().fromJson(value, Box::class.java)
 }

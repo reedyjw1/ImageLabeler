@@ -109,7 +109,7 @@ class AnnotationsViewModel private constructor(
                 viewModelScope.launch(Dispatchers.Default) {
                     if (!event.onlyVisual) {
                         val annotation = viewState.value.imageData.addAndUpdate(event.box)
-                        annotation.annotation.boxes = annotation.annotation.boxes.checkAndSwap()
+                        annotation.boxes = annotation.boxes.checkAndSwap()
                         setState {
                             copy(
                                 imageData = annotation
@@ -119,7 +119,7 @@ class AnnotationsViewModel private constructor(
                 }
             }
             AnnotationsViewEvent.ExportFiles -> {
-                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.imageData.annotation))
+                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.imageData))
             }
             AnnotationsViewEvent.OnStop -> {
                 //saveSelectedAnnotation()

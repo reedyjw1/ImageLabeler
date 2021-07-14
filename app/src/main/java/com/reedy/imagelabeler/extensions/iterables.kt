@@ -11,12 +11,12 @@ fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
 }
 
 fun ImageData.addAndUpdate(newValue: Box): ImageData {
-    annotation.boxes.add(newValue)
+    boxes.add(newValue)
     return this
 }
 
 fun ImageData.resetBoxes(): ImageData {
-    annotation.boxes = mutableListOf()
+    boxes = mutableListOf()
     return this
 }
 

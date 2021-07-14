@@ -10,25 +10,32 @@ data class ImageData(
     @PrimaryKey
     var uid: String = UUID.randomUUID().toString(),
     @ColumnInfo
-    var annotation: Annotation = Annotation(),
-    @ColumnInfo
     var bitmapUri: String = "",
     @ColumnInfo
-    var directoryUri: String = ""
-)
-
-data class Annotation (
+    var directoryUri: String = "",
+    @ColumnInfo
     var fileName: String = "",
+    @ColumnInfo
     var path: String = "",
+    @ColumnInfo
     var group: String = "",
+    @ColumnInfo
     var source: String = "Unspecified",
+    @ColumnInfo
     var imageHeight: Int = 0,
+    @ColumnInfo
     var imageWidth: Int = 0,
+    @ColumnInfo
     var depth: Int = 3,
+    @ColumnInfo
     var segmented: Int = 0,
+    @ColumnInfo
     var pose: String = "Unspecified",
+    @ColumnInfo
     var truncated: String = "Unspecified",
+    @ColumnInfo
     var difficult: String = "Unspecified",
+    @ColumnInfo
     var boxes: MutableList<Box> = mutableListOf()
 )
 

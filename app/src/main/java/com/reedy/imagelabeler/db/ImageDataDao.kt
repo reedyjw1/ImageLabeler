@@ -1,7 +1,6 @@
 package com.reedy.imagelabeler.db
 
 import androidx.room.*
-import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.ImageData
 
 @Dao

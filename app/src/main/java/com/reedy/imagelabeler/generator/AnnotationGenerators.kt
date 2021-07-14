@@ -1,11 +1,11 @@
 package com.reedy.imagelabeler.generator
 
-import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.ImageData
 
 object AnnotationGenerators {
 
-    fun getPascalVocAnnotation(box: Box, annotation: Annotation): String {
+    fun getPascalVocAnnotation(box: Box, annotation: ImageData): String {
         return "<annotation>\n" +
                 "\t<filename>${annotation.fileName}</filename>\n" +
                 "\t<path>${annotation.path}</path>\n" +
