@@ -9,6 +9,7 @@ import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.*
 import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.model.checkAndSwap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -98,9 +99,11 @@ class AnnotationsViewModel private constructor(
                 // Ensures that the view model is the ultimate source of truth
                 viewModelScope.launch(Dispatchers.Default) {
                     if (!event.onlyVisual) {
+                        val annotation = viewState.value.annotation.addAndUpdate(event.box)
+                        annotation.annotation.boxes = annotation.annotation.boxes.checkAndSwap()
                         setState {
                             copy(
-                                annotation = annotation.addAndUpdate(event.box)
+                                annotation = annotation
                             )
                         }
                     }

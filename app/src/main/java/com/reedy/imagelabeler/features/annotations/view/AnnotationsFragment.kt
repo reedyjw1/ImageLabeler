@@ -21,6 +21,7 @@ import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.generator.AnnotationGenerators
 import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.checkAndSwap
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
 import java.io.File
@@ -158,24 +159,10 @@ class AnnotationsFragment:
             }
         }
 
+        annotation.imageHeight = bitmap.height
+        annotation.imageWidth = bitmap.width
+
         annotation.boxes.forEachIndexed { index, box ->
-            annotation.imageHeight = bitmap.height
-            annotation.imageWidth = bitmap.width
-
-            /*val xMin = box.relativeToBitmapXMin ?: return
-            val yMin = box.relativeToBitmapYMin ?: return
-            val xMax = box.relativeToBitmapXMax ?: return
-            val yMax = box.relativeToBitmapYMax ?: return
-
-            if (xMin > xMax) {
-                box.relativeToBitmapXMin = xMax
-                box.relativeToBitmapXMax = xMin
-            }
-            if (yMin > yMax) {
-                box.relativeToBitmapYMin = yMax
-                box.relativeToBitmapYMax = yMin
-            }*/
-            
             val generatedText = AnnotationGenerators.getPascalVocAnnotation(box, annotation)
 
             val xmlFile = dir.createFile("application/xml", "grid_${index}.xml") ?: return@forEachIndexed

@@ -35,11 +35,15 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        val bitmapWidth = (drawable as? BitmapDrawable)?.bitmap?.width?.toFloat() ?: return
+        val bitmapHeight = (drawable as? BitmapDrawable)?.bitmap?.height?.toFloat() ?: return
+        val xScale = bitmapWidth / width.toFloat()
+        val yScale = bitmapHeight / height.toFloat()
         boxes.forEach { box ->
-            val xMin = box.xMin / box.xScale
-            val xMax = box.xMax / box.xScale
-            val yMin = box.yMin / box.yScale
-            val yMax = box.yMax / box.yScale
+            val xMin = box.xMin / xScale
+            val xMax = box.xMax / xScale
+            val yMin = box.yMin / yScale
+            val yMax = box.yMax / yScale
 
             canvas?.drawRect(xMin, yMax, xMax, yMin, paint)
         }
