@@ -11,7 +11,7 @@ import com.reedy.imagelabeler.model.ImageData
 
 data class AnnotationsViewState(
     val buttonState: ButtonState = ButtonState.ZOOM,
-    val annotation: ImageData = ImageData(),
+    val imageData: ImageData = ImageData(),
     val directory: MutableList<UiDocument> = mutableListOf(),
     val directoryName: String = ""
 ): ViewState
@@ -24,6 +24,7 @@ sealed class AnnotationsViewEvent(): ViewStateEvent {
     object ZoomButtonClicked: AnnotationsViewEvent()
     object ExportFiles: AnnotationsViewEvent()
     object RefreshDirectory: AnnotationsViewEvent()
+    object OnStop: AnnotationsViewEvent()
     data class SaveAnnotationToDB(val metadata: ImageData): AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String, val isFirstUpdate: Boolean = false): AnnotationsViewEvent()

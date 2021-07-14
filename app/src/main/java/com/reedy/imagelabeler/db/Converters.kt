@@ -3,6 +3,7 @@ package com.reedy.imagelabeler.db
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.reedy.imagelabeler.model.Annotation
+import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 
 class Converters {

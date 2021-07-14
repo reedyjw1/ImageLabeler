@@ -9,26 +9,34 @@ import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.*
 import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.features.annotations.repository.IAnnotationsRepository
 import com.reedy.imagelabeler.model.checkAndSwap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
     navigator: NavController
 ): BaseViewModel<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect>(
     initialState = AnnotationsViewState()
-){
+), KoinComponent {
+
+    private val repository: IAnnotationsRepository by inject()
+
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
             is AnnotationsViewEvent.SaveAnnotationToDB -> {
 
             }
             is AnnotationsViewEvent.LeftButtonClicked -> {
+                saveSelectedAnnotation()
                 leftOrRight(false)
             }
             is AnnotationsViewEvent.RightButtonClicked -> {
+                saveSelectedAnnotation()
                 leftOrRight(true)
 
             }
@@ -82,6 +90,7 @@ class AnnotationsViewModel private constructor(
                 emitEffect(AnnotationsViewEffect.RefreshDirectory)
             }
             is AnnotationsViewEvent.FileClicked -> {
+                saveSelectedAnnotation()
                 viewModelScope.launch(Dispatchers.Default) {
                     setState {
                         copy(
@@ -99,18 +108,21 @@ class AnnotationsViewModel private constructor(
                 // Ensures that the view model is the ultimate source of truth
                 viewModelScope.launch(Dispatchers.Default) {
                     if (!event.onlyVisual) {
-                        val annotation = viewState.value.annotation.addAndUpdate(event.box)
+                        val annotation = viewState.value.imageData.addAndUpdate(event.box)
                         annotation.annotation.boxes = annotation.annotation.boxes.checkAndSwap()
                         setState {
                             copy(
-                                annotation = annotation
+                                imageData = annotation
                             )
                         }
                     }
                 }
             }
             AnnotationsViewEvent.ExportFiles -> {
-                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.annotation.annotation))
+                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.imageData.annotation))
+            }
+            AnnotationsViewEvent.OnStop -> {
+                //saveSelectedAnnotation()
             }
         }
     }
@@ -123,11 +135,18 @@ class AnnotationsViewModel private constructor(
             viewState.value.directory.findPrevious(currentDisplay) ?: return
         setState {
             copy(
-                annotation = annotation.resetBoxes(),
+                imageData = imageData.resetBoxes(),
                 directory = directory.updateSelected(document)
             )
         }
         emitEffect(AnnotationsViewEffect.LoadImage(document))
+    }
+
+    private fun saveSelectedAnnotation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.i("ViewModel", "saveSelectedAnnotation: ${viewState.value.imageData}")
+            repository.saveAnnotations(viewState.value.imageData)
+        }
     }
 
     companion object {
@@ -146,6 +165,7 @@ class AnnotationsViewModel private constructor(
 class AnnotationsViewModelFactory(
     private val navigator: NavController
 ): ViewModelProvider.Factory {
+
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return AnnotationsViewModel.create(
             stateHandle = SavedStateHandle(),

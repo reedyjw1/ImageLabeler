@@ -12,7 +12,6 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
@@ -21,10 +20,8 @@ import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.generator.AnnotationGenerators
 import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.Box
-import com.reedy.imagelabeler.model.checkAndSwap
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
-import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
 
@@ -86,7 +83,7 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
-        image_editor.updateBoxList(viewState.annotation.annotation.boxes)
+        image_editor.updateBoxList(viewState.imageData.annotation.boxes)
         adapter.submitList(viewState.directory)
         title.text = viewState.directoryName
     }
@@ -195,5 +192,10 @@ class AnnotationsFragment:
 
     override fun onBoxAdded(box: Box, onlyVisual: Boolean) {
         viewModel.process(AnnotationsViewEvent.OnBoxAdded(box, onlyVisual))
+    }
+
+    override fun onStop() {
+        viewModel.process(AnnotationsViewEvent.OnStop)
+        super.onStop()
     }
 }

@@ -1,5 +1,6 @@
 package com.reedy.imagelabeler.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
@@ -8,8 +9,11 @@ import java.util.*
 data class ImageData(
     @PrimaryKey
     var uid: String = UUID.randomUUID().toString(),
+    @ColumnInfo
     var annotation: Annotation = Annotation(),
+    @ColumnInfo
     var bitmapUri: String = "",
+    @ColumnInfo
     var directoryUri: String = ""
 )
 
