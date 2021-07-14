@@ -2,6 +2,9 @@ package com.reedy.imagelabeler.extensions
 
 import android.util.Log
 import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.model.Annotation
+import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.MetaData
 
 fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
     return map {
@@ -9,8 +12,13 @@ fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
     }
 }
 
-fun <T> MutableList<T>.addAndUpdate(newValue: T): MutableList<T> {
-    add(newValue)
+fun MetaData.addAndUpdate(newValue: Box): MetaData {
+    annotation.boxes.add(newValue)
+    return this
+}
+
+fun MetaData.resetBoxes(): MetaData {
+    annotation.boxes = mutableListOf()
     return this
 }
 

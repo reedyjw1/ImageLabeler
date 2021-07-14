@@ -13,7 +13,8 @@
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ImageLabeler.Fullscreen">
+            android:theme="@style/Theme.ImageLabeler.Fullscreen"
+            android:screenOrientation="userLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

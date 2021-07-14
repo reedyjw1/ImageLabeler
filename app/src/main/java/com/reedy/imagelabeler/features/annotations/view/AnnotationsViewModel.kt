@@ -21,6 +21,9 @@ class AnnotationsViewModel private constructor(
 ){
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
+            is AnnotationsViewEvent.SaveAnnotationToDB -> {
+
+            }
             is AnnotationsViewEvent.LeftButtonClicked -> {
                 leftOrRight(false)
             }
@@ -58,7 +61,7 @@ class AnnotationsViewModel private constructor(
                     setState {
                         copy(
                             directoryName = event.name,
-                            directory = dir
+                            directory = dir,
                         )
                     }
                     if (event.isFirstUpdate) {
@@ -97,19 +100,19 @@ class AnnotationsViewModel private constructor(
                     if (!event.onlyVisual) {
                         setState {
                             copy(
-                                boxes = boxes.addAndUpdate(event.box)
+                                annotation = annotation.addAndUpdate(event.box)
                             )
                         }
                     }
                 }
             }
             AnnotationsViewEvent.ExportFiles -> {
-                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.boxes))
+                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.annotation.annotation))
             }
         }
     }
 
-    fun leftOrRight(right: Boolean) {
+    private fun leftOrRight(right: Boolean) {
         val currentDisplay = viewState.value.directory.findSelected() ?: return
         val document = if (right)
             viewState.value.directory.findNext(currentDisplay) ?: return
@@ -117,7 +120,7 @@ class AnnotationsViewModel private constructor(
             viewState.value.directory.findPrevious(currentDisplay) ?: return
         setState {
             copy(
-                boxes = mutableListOf(),
+                annotation = annotation.resetBoxes(),
                 directory = directory.updateSelected(document)
             )
         }

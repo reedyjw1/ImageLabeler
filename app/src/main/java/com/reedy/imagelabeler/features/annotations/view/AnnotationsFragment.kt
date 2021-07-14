@@ -19,6 +19,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.generator.AnnotationGenerators
+import com.reedy.imagelabeler.model.Annotation
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
@@ -84,7 +85,7 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
-        image_editor.updateBoxList(viewState.boxes)
+        image_editor.updateBoxList(viewState.annotation.annotation.boxes)
         adapter.submitList(viewState.directory)
         title.text = viewState.directoryName
     }
@@ -104,7 +105,7 @@ class AnnotationsFragment:
             is AnnotationsViewEffect.UpdateBoxList -> {
                 image_editor.updateBoxes(effect.box)
             }
-            is AnnotationsViewEffect.ExportAnnotations -> export(effect.list)
+            is AnnotationsViewEffect.ExportAnnotations -> export(effect.annotation)
             is AnnotationsViewEffect.RefreshDirectory -> {
                 initDir()
             }
@@ -139,10 +140,13 @@ class AnnotationsFragment:
         val files = dir?.listFiles() ?: return
         val name = dir.name ?: return
         viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name, isFirst))
+    }
+
+    private fun saveToDatabase(annotation: Annotation) {
 
     }
 
-    private fun export(boxes: List<Box>) {
+    private fun export(annotation: Annotation) {
         val uri = treeUri ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
         val file = dir?.createFile("image", "grid.jpg") ?: return
@@ -154,9 +158,9 @@ class AnnotationsFragment:
             }
         }
 
-        boxes.forEachIndexed { index, box ->
-            box.imageHeight = bitmap.height
-            box.imageWidth = bitmap.width
+        annotation.boxes.forEachIndexed { index, box ->
+            annotation.imageHeight = bitmap.height
+            annotation.imageWidth = bitmap.width
 
             val xMin = box.relativeToBitmapXMin ?: return
             val yMin = box.relativeToBitmapYMin ?: return
@@ -172,7 +176,7 @@ class AnnotationsFragment:
                 box.relativeToBitmapYMax = yMin
             }
             
-            val generatedText = AnnotationGenerators.getPascalVocAnnotation(box)
+            val generatedText = AnnotationGenerators.getPascalVocAnnotation(box, annotation)
 
             val xmlFile = dir.createFile("application/xml", "grid_${index}.xml") ?: return@forEachIndexed
 
