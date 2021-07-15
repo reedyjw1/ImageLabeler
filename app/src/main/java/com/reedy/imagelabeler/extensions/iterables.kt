@@ -1,6 +1,6 @@
 package com.reedy.imagelabeler.extensions
 
-import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 

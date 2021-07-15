@@ -1,6 +1,5 @@
 package com.reedy.imagelabeler.features.annotations.view
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -8,7 +7,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.*
-import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.ButtonState
+import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import com.reedy.imagelabeler.features.annotations.repository.IAnnotationsRepository
 import com.reedy.imagelabeler.model.ImageData
 import com.reedy.imagelabeler.model.checkAndSwap

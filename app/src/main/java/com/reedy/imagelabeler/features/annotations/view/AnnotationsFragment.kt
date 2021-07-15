@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
+import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.generator.AnnotationGenerators
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
@@ -74,6 +75,7 @@ class AnnotationsFragment:
     override fun renderState(viewState: AnnotationsViewState) {
         when(viewState.buttonState) {
             ButtonState.ZOOM -> {
+                
                 enableZoom(true)
             }
             ButtonState.EDIT -> {

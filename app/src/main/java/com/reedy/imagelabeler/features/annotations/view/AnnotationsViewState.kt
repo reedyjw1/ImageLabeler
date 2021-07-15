@@ -4,7 +4,8 @@ import androidx.documentfile.provider.DocumentFile
 import com.reedy.imagelabeler.arch.ViewState
 import com.reedy.imagelabeler.arch.ViewStateEffect
 import com.reedy.imagelabeler.arch.ViewStateEvent
-import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.ButtonState
+import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 

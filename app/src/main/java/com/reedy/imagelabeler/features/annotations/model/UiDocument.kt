@@ -1,8 +1,7 @@
-package com.reedy.imagelabeler.features.annotations
+package com.reedy.imagelabeler.features.annotations.model
 
 import android.net.Uri
 import androidx.recyclerview.widget.DiffUtil
-import java.net.URI
 
 data class UiDocument(
     val name: String,
