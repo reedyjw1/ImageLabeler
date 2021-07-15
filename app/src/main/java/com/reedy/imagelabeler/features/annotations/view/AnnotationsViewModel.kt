@@ -101,17 +101,21 @@ class AnnotationsViewModel private constructor(
                 emitEffect(AnnotationsViewEffect.RefreshDirectory)
             }
             is AnnotationsViewEvent.FileClicked -> {
+                setState {
+                    copy(
+                        directory = directory.updateSelected(event.document),
+                    )
+                }
                 viewModelScope.launch(Dispatchers.IO) {
-                    val oldImg = viewState.value.imageData?.copy() ?: return@launch
-                    saveSelectedAnnotation(oldImg)
+                    val oldImg = viewState.value.imageData ?: return@launch
                     val imageData = getNewOrActualImageData(event.document)
+                    setState {
+                        copy(
+                            imageData = imageData
+                        )
+                    }
+                    saveSelectedAnnotation(oldImg)
                     withContext(Dispatchers.Main) {
-                        setState {
-                            copy(
-                                directory = directory.updateSelected(event.document),
-                                imageData = imageData
-                            )
-                        }
                         emitEffect(AnnotationsViewEffect.LoadImage(event.document))
                     }
                 }
