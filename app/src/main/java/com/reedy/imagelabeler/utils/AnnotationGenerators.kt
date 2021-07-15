@@ -1,4 +1,4 @@
-package com.reedy.imagelabeler.generator
+package com.reedy.imagelabeler.utils
 
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData

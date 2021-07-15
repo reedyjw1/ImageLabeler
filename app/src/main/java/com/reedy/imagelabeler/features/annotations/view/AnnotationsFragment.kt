@@ -12,29 +12,33 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
-import com.reedy.imagelabeler.generator.AnnotationGenerators
+import com.reedy.imagelabeler.utils.AnnotationGenerators
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
+import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
+import com.reedy.imagelabeler.utils.shared.SharedPrefsKeys
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.io.FileOutputStream
 import java.lang.Exception
 
 class AnnotationsFragment:
-    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations), BoxUpdatedListener
+    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>
+        (R.layout.fragment_annotations), BoxUpdatedListener, KoinComponent
 {
     companion object {
         private const val TAG = "Annotations"
         private const val REQUEST_CODE = 1274
     }
-
-    private var treeUri: Uri? = null
 
     private val navigator by lazy {
         val navHostFragment = requireActivity()
@@ -43,6 +47,7 @@ class AnnotationsFragment:
 
         navHostFragment.navController
     }
+    private val sharedProvider: ISharedPrefsHelper by inject()
 
     override val viewModel: AnnotationsViewModel by viewModels {
         AnnotationsViewModelFactory(navigator)
@@ -75,7 +80,7 @@ class AnnotationsFragment:
     override fun renderState(viewState: AnnotationsViewState) {
         when(viewState.buttonState) {
             ButtonState.ZOOM -> {
-                
+
                 enableZoom(true)
             }
             ButtonState.EDIT -> {
@@ -136,7 +141,7 @@ class AnnotationsFragment:
     }
 
     private fun initDir(isFirst: Boolean = false) {
-        val uri = treeUri ?: return
+        val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri() ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
         val files = dir?.listFiles() ?: return
         val name = dir.name ?: return
@@ -144,7 +149,7 @@ class AnnotationsFragment:
     }
 
     private fun export(annotation: ImageData) {
-        val uri = treeUri ?: return
+        val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri() ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
         val file = dir?.createFile("image", "grid.jpg") ?: return
         val bitmap = (overlay.drawable as BitmapDrawable).bitmap
@@ -173,9 +178,13 @@ class AnnotationsFragment:
     }
 
     private fun askPermission() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-
-        startActivityForResult(intent, REQUEST_CODE)
+        val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri()
+        if (uri == null) {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            startActivityForResult(intent, REQUEST_CODE)
+        } else {
+            initDir(true)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -183,7 +192,7 @@ class AnnotationsFragment:
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             if (data != null) {
                 //this is the uri user has provided us
-                treeUri = data.data
+                sharedProvider.saveToSharedPrefs(SharedPrefsKeys.DIR_URI, data.data.toString())
                 initDir(true)
             }
         }
