@@ -10,6 +10,7 @@ import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.*
 import com.reedy.imagelabeler.features.annotations.UiDocument
 import com.reedy.imagelabeler.features.annotations.repository.IAnnotationsRepository
+import com.reedy.imagelabeler.model.ImageData
 import com.reedy.imagelabeler.model.checkAndSwap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,12 +33,18 @@ class AnnotationsViewModel private constructor(
 
             }
             is AnnotationsViewEvent.LeftButtonClicked -> {
-                saveSelectedAnnotation()
-                leftOrRight(false)
+                viewModelScope.launch(Dispatchers.IO) {
+                    val imgData = viewState.value.imageData?.copy() ?: return@launch
+                    saveSelectedAnnotation(imgData)
+                    leftOrRight(false)
+                }
             }
             is AnnotationsViewEvent.RightButtonClicked -> {
-                saveSelectedAnnotation()
-                leftOrRight(true)
+                viewModelScope.launch(Dispatchers.IO) {
+                    val imgData = viewState.value.imageData?.copy() ?: return@launch
+                    saveSelectedAnnotation(imgData)
+                    leftOrRight(true)
+                }
 
             }
             AnnotationsViewEvent.EditButtonClicked -> {
@@ -62,23 +69,27 @@ class AnnotationsViewModel private constructor(
                 }
             }
             is AnnotationsViewEvent.UpdateDirectory -> {
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch(Dispatchers.IO) {
                     val dir: MutableList<UiDocument> = event.dir.map {
                         UiDocument(name = it.name ?: "[No Name]", uri = it.uri, type = it.type ?: "none")
                     }.toMutableList()
 
-                    setState {
-                        copy(
-                            directoryName = event.name,
-                            directory = dir,
-                        )
+                    withContext(Dispatchers.Main) {
+                        setState {
+                            copy(
+                                directoryName = event.name,
+                                directory = dir,
+                            )
+                        }
                     }
                     if (event.isFirstUpdate) {
+                        val document = viewState.value.directory.findFirstImage() ?: return@launch
+                        val imageData = getNewOrActualImageData(document)
                         withContext(Dispatchers.Main) {
-                            val document = viewState.value.directory.findFirstImage() ?: return@withContext
                             setState {
                                 copy(
-                                    directory = directory.updateSelected(document)
+                                    directory = directory.updateSelected(document),
+                                    imageData = imageData
                                 )
                             }
                             emitEffect(AnnotationsViewEffect.LoadImage(document))
@@ -90,11 +101,14 @@ class AnnotationsViewModel private constructor(
                 emitEffect(AnnotationsViewEffect.RefreshDirectory)
             }
             is AnnotationsViewEvent.FileClicked -> {
-                saveSelectedAnnotation()
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val oldImg = viewState.value.imageData?.copy() ?: return@launch
+                    saveSelectedAnnotation(oldImg)
+                    val imageData = getNewOrActualImageData(event.document)
                     setState {
                         copy(
-                            directory = directory.updateSelected(event.document)
+                            directory = directory.updateSelected(event.document),
+                            imageData = imageData
                         )
                     }
                 }
@@ -106,9 +120,9 @@ class AnnotationsViewModel private constructor(
 
                 // For finalizing the box list once the touch has been released
                 // Ensures that the view model is the ultimate source of truth
-                viewModelScope.launch(Dispatchers.Default) {
+                viewModelScope.launch(Dispatchers.IO) {
                     if (!event.onlyVisual) {
-                        val annotation = viewState.value.imageData.addAndUpdate(event.box)
+                        val annotation = viewState.value.imageData?.addAndUpdate(event.box) ?: return@launch
                         annotation.boxes = annotation.boxes.checkAndSwap()
                         setState {
                             copy(
@@ -119,34 +133,42 @@ class AnnotationsViewModel private constructor(
                 }
             }
             AnnotationsViewEvent.ExportFiles -> {
-                emitEffect(AnnotationsViewEffect.ExportAnnotations(viewState.value.imageData))
+                val imageData = viewState.value.imageData ?: return
+                emitEffect(AnnotationsViewEffect.ExportAnnotations(imageData))
             }
             AnnotationsViewEvent.OnStop -> {
-                //saveSelectedAnnotation()
+                viewModelScope.launch(Dispatchers.IO) {
+                    val imgData = viewState.value.imageData?.copy() ?: return@launch
+                    saveSelectedAnnotation(imgData)
+                }
             }
         }
     }
 
-    private fun leftOrRight(right: Boolean) {
+    private suspend fun getNewOrActualImageData(document: UiDocument): ImageData {
+        return repository.loadByImageUri(document.uri.toString()) ?: ImageData(bitmapUri = document.uri.toString())
+    }
+
+    private suspend fun leftOrRight(right: Boolean) {
         val currentDisplay = viewState.value.directory.findSelected() ?: return
         val document = if (right)
             viewState.value.directory.findNext(currentDisplay) ?: return
         else
             viewState.value.directory.findPrevious(currentDisplay) ?: return
-        setState {
-            copy(
-                imageData = imageData.resetBoxes(),
-                directory = directory.updateSelected(document)
-            )
+        val imageData = getNewOrActualImageData(document)
+        withContext(Dispatchers.Main) {
+            setState {
+                copy(
+                    imageData = imageData.resetBoxes(),
+                    directory = directory.updateSelected(document)
+                )
+            }
+            emitEffect(AnnotationsViewEffect.LoadImage(document))
         }
-        emitEffect(AnnotationsViewEffect.LoadImage(document))
     }
 
-    private fun saveSelectedAnnotation() {
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.i("ViewModel", "saveSelectedAnnotation: ${viewState.value.imageData}")
-            repository.saveAnnotations(viewState.value.imageData)
-        }
+    private suspend fun saveSelectedAnnotation(imageData: ImageData) {
+        repository.saveAnnotations(imageData)
     }
 
     companion object {

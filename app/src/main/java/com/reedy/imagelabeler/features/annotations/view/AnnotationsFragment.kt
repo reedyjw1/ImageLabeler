@@ -83,7 +83,8 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
-        image_editor.updateBoxList(viewState.imageData.boxes)
+        val boxesSafe = viewState.imageData?.boxes ?: return
+        image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)
         title.text = viewState.directoryName
     }

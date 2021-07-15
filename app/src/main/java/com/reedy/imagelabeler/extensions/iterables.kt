@@ -74,3 +74,23 @@ fun MutableList<UiDocument>.findSelected(): UiDocument? {
 }
 
 
+fun ImageData.copy(): ImageData {
+    return ImageData(
+        uid = uid,
+        bitmapUri = bitmapUri,
+        directoryUri = directoryUri,
+        fileName = fileName,
+        path = path,
+        group = group,
+        source = source,
+        imageHeight = imageHeight,
+        imageWidth = imageWidth,
+        depth = depth,
+        segmented = segmented,
+        pose = pose,
+        truncated = truncated,
+        difficult = difficult,
+        boxes = boxes
+    )
+}
+

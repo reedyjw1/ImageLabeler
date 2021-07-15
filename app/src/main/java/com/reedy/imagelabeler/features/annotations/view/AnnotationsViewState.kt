@@ -10,7 +10,7 @@ import com.reedy.imagelabeler.model.ImageData
 
 data class AnnotationsViewState(
     val buttonState: ButtonState = ButtonState.ZOOM,
-    val imageData: ImageData = ImageData(),
+    val imageData: ImageData? = null,
     val directory: MutableList<UiDocument> = mutableListOf(),
     val directoryName: String = ""
 ): ViewState

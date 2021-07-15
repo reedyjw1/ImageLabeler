@@ -9,8 +9,7 @@ import java.util.*
 data class ImageData(
     @PrimaryKey
     var uid: String = UUID.randomUUID().toString(),
-    @ColumnInfo
-    var bitmapUri: String = "",
+    var bitmapUri: String,
     @ColumnInfo
     var directoryUri: String = "",
     @ColumnInfo
