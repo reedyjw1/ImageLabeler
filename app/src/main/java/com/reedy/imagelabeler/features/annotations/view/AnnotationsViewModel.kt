@@ -105,14 +105,16 @@ class AnnotationsViewModel private constructor(
                     val oldImg = viewState.value.imageData?.copy() ?: return@launch
                     saveSelectedAnnotation(oldImg)
                     val imageData = getNewOrActualImageData(event.document)
-                    setState {
-                        copy(
-                            directory = directory.updateSelected(event.document),
-                            imageData = imageData
-                        )
+                    withContext(Dispatchers.Main) {
+                        setState {
+                            copy(
+                                directory = directory.updateSelected(event.document),
+                                imageData = imageData
+                            )
+                        }
+                        emitEffect(AnnotationsViewEffect.LoadImage(event.document))
                     }
                 }
-                emitEffect(AnnotationsViewEffect.LoadImage(event.document))
             }
             is AnnotationsViewEvent.OnBoxAdded -> {
                 // For updating the list while the box is still moving
@@ -155,11 +157,11 @@ class AnnotationsViewModel private constructor(
             viewState.value.directory.findNext(currentDisplay) ?: return
         else
             viewState.value.directory.findPrevious(currentDisplay) ?: return
-        val imageData = getNewOrActualImageData(document)
+        val imgData = getNewOrActualImageData(document)
         withContext(Dispatchers.Main) {
             setState {
                 copy(
-                    imageData = imageData.resetBoxes(),
+                    imageData = imgData,
                     directory = directory.updateSelected(document)
                 )
             }
