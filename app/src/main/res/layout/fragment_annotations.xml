@@ -185,31 +185,31 @@
                     style="@style/Widget.App.Button.IconOnlyNoOutline"
                     android:layout_marginEnd="4dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_layers_clear_24"
-                    style="@style/Widget.App.Button.IconOnlyNoOutline"
-                    android:layout_marginEnd="4dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/undo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_undo_24"
-                    style="@style/Widget.App.Button.IconOnlyNoOutline"
-                    android:layout_marginEnd="4dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/redo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:icon="@drawable/ic_baseline_redo_24"
-                    style="@style/Widget.App.Button.IconOnlyNoOutline"
-                    android:layout_marginEnd="4dp" />
-
             </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_layers_clear_24"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/undo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_undo_24"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/redo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_redo_24"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
+                android:layout_marginEnd="4dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/right"

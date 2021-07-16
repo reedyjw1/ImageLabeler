@@ -157,7 +157,14 @@ class AnnotationsViewModel private constructor(
                         Log.i(TAG, "process: adding box")
                         val annotation = viewState.value.imageData?.addAndUpdate(event.box) ?: return@launch
                         annotation.boxes = annotation.boxes.checkAndSwap()
-                        undoList.add(event.box.checkAndSwap())
+                        if (undoList.size > 9) {
+                            undoList.removeFirst()
+                            undoList.add(event.box.checkAndSwap())
+                            Log.i(TAG, "process: removing first: ${undoList.size}")
+                        } else {
+                            undoList.add(event.box.checkAndSwap())
+                            Log.i(TAG, "process: adding: ${undoList.size}")
+                        }
                         setState {
                             copy(
                                 imageData = annotation
