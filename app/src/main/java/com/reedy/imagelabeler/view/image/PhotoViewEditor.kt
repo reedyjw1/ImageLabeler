@@ -2,6 +2,7 @@ package com.reedy.imagelabeler.view.image
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import androidx.core.view.children
 import com.otaliastudios.zoom.ZoomLayout
@@ -43,7 +44,8 @@ class PhotoViewEditor(context: Context, attrs: AttributeSet): ZoomLayout(context
     fun updateBoxList(boxes: List<Box>) {
         children.firstOrNull()?.let {
             val overlay = it as Overlay
-            overlay.boxes = boxes.toMutableList()
+            overlay.updateBoxList(boxes.toMutableList())
+            overlay.invalidate()
         }
     }
 

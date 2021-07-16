@@ -72,6 +72,7 @@ class AnnotationsFragment:
         zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
         export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
         refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
+        undo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnUndo) }
         directory_recycler.adapter = adapter
         askPermission()
 
@@ -80,7 +81,6 @@ class AnnotationsFragment:
     override fun renderState(viewState: AnnotationsViewState) {
         when(viewState.buttonState) {
             ButtonState.ZOOM -> {
-
                 enableZoom(true)
             }
             ButtonState.EDIT -> {
@@ -90,6 +90,7 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
+        Log.i(TAG, "renderState: rendering")
         val boxesSafe = viewState.imageData?.boxes ?: return
         image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)
@@ -111,6 +112,7 @@ class AnnotationsFragment:
             is AnnotationsViewEffect.UpdateBoxList -> {
                 image_editor.updateBoxes(effect.box)
             }
+            is AnnotationsViewEffect.UpdateEntireList -> { image_editor.updateBoxList(effect.boxes) }
             is AnnotationsViewEffect.ExportAnnotations -> export(effect.annotation)
             is AnnotationsViewEffect.RefreshDirectory -> {
                 initDir()

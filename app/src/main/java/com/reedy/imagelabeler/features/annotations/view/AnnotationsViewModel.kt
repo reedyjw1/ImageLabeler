@@ -1,5 +1,6 @@
 package com.reedy.imagelabeler.features.annotations.view
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,14 +11,17 @@ import com.reedy.imagelabeler.extensions.*
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import com.reedy.imagelabeler.features.annotations.repository.IAnnotationsRepository
+import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 import com.reedy.imagelabeler.model.checkAndSwap
+import com.reedy.imagelabeler.model.removeAndUpdate
 import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import java.util.*
 
 class AnnotationsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
@@ -26,7 +30,11 @@ class AnnotationsViewModel private constructor(
     initialState = AnnotationsViewState()
 ), KoinComponent {
 
+
+
     private val repository: IAnnotationsRepository by inject()
+    private var undoList = Stack<Box>()
+    private var redoList = LinkedList<Box>()
 
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
@@ -46,6 +54,21 @@ class AnnotationsViewModel private constructor(
                     saveSelectedAnnotation(imgData)
                     leftOrRight(true)
                 }
+
+            }
+            AnnotationsViewEvent.OnUndo -> {
+                if (undoList.isEmpty()) return
+                val removed = undoList.pop()
+                Log.i(TAG, "process: removing: $removed")
+                redoList.add(removed)
+                setState {
+                    copy(
+                        imageData = imageData?.removeAndUpdate(removed)
+                    )
+                }
+                emitEffect(AnnotationsViewEffect.UpdateEntireList(viewState.value.imageData?.boxes ?: mutableListOf()))
+            }
+            AnnotationsViewEvent.OnRedo -> {
 
             }
             AnnotationsViewEvent.EditButtonClicked -> {
@@ -110,6 +133,8 @@ class AnnotationsViewModel private constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     val oldImg = viewState.value.imageData ?: return@launch
                     val imageData = getNewOrActualImageData(event.document)
+                    undoList = Stack<Box>()
+                    redoList = LinkedList<Box>()
                     setState {
                         copy(
                             imageData = imageData
@@ -129,8 +154,10 @@ class AnnotationsViewModel private constructor(
                 // Ensures that the view model is the ultimate source of truth
                 viewModelScope.launch(Dispatchers.IO) {
                     if (!event.onlyVisual) {
+                        Log.i(TAG, "process: adding box")
                         val annotation = viewState.value.imageData?.addAndUpdate(event.box) ?: return@launch
                         annotation.boxes = annotation.boxes.checkAndSwap()
+                        undoList.add(event.box.checkAndSwap())
                         setState {
                             copy(
                                 imageData = annotation
@@ -146,6 +173,8 @@ class AnnotationsViewModel private constructor(
             AnnotationsViewEvent.OnStop -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val imgData = viewState.value.imageData?.copy() ?: return@launch
+                    undoList = Stack<Box>()
+                    redoList = LinkedList<Box>()
                     saveSelectedAnnotation(imgData)
                 }
             }
@@ -163,6 +192,8 @@ class AnnotationsViewModel private constructor(
         else
             viewState.value.directory.findPrevious(currentDisplay) ?: return
         val imgData = getNewOrActualImageData(document)
+        undoList = Stack<Box>()
+        redoList = LinkedList<Box>()
         withContext(Dispatchers.Main) {
             setState {
                 copy(
@@ -188,6 +219,7 @@ class AnnotationsViewModel private constructor(
                 navigator
             )
         }
+        private const val TAG = "AnnotationsViewModel"
     }
 }
 

@@ -9,10 +9,12 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.reedy.imagelabeler.model.Box
+import java.util.*
 import kotlin.math.abs
 
-class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) {
+class Overlay(context: Context, attrs: AttributeSet): AppCompatImageView(context, attrs) {
 
     var boxes = mutableListOf<Box>()
     private var paint: Paint = Paint()
@@ -35,6 +37,7 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        Log.i(TAG, "onDraw: inOverlay - ${boxes.size}")
         val bitmapWidth = (drawable as? BitmapDrawable)?.bitmap?.width?.toFloat() ?: return
         val bitmapHeight = (drawable as? BitmapDrawable)?.bitmap?.height?.toFloat() ?: return
         val xScale = bitmapWidth / width.toFloat()
@@ -46,6 +49,13 @@ class Overlay(context: Context, attrs: AttributeSet): ImageView(context, attrs) 
             val yMax = box.yMax / yScale
 
             canvas?.drawRect(xMin, yMax, xMax, yMin, paint)
+        }
+    }
+
+    fun updateBoxList(newList: MutableList<Box>) {
+        boxes.clear()
+        newList.forEach {
+            boxes.add(it)
         }
     }
 

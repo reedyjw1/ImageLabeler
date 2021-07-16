@@ -25,6 +25,8 @@ sealed class AnnotationsViewEvent: ViewStateEvent {
     object ExportFiles: AnnotationsViewEvent()
     object RefreshDirectory: AnnotationsViewEvent()
     object OnStop: AnnotationsViewEvent()
+    object OnUndo: AnnotationsViewEvent()
+    object OnRedo: AnnotationsViewEvent()
     data class SaveAnnotationToDB(val metadata: ImageData): AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String, val isFirstUpdate: Boolean = false): AnnotationsViewEvent()
@@ -36,4 +38,5 @@ sealed class AnnotationsViewEffect: ViewStateEffect {
     data class ExportAnnotations(val annotation: ImageData): AnnotationsViewEffect()
     data class LoadImage(val doc: UiDocument?): AnnotationsViewEffect()
     object RefreshDirectory: AnnotationsViewEffect()
+    data class UpdateEntireList(val boxes: MutableList<Box>): AnnotationsViewEffect()
 }

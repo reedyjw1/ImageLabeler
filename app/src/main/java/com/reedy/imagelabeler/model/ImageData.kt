@@ -78,3 +78,25 @@ fun MutableList<Box>.checkAndSwap(): MutableList<Box> {
         return@map box
     }.toMutableList()
 }
+
+fun ImageData.removeAndUpdate(box: Box): ImageData {
+    val imageData = this
+    imageData.boxes.remove(box)
+    return imageData
+}
+
+fun Box.checkAndSwap(): Box {
+
+    if (xMin > xMax) {
+        val tempXmax = xMax
+        xMax = xMin
+        xMin = tempXmax
+    }
+    if (yMin > yMax) {
+        val tempYMax = yMax
+        yMax = yMin
+        yMin = tempYMax
+    }
+
+    return this
+}
