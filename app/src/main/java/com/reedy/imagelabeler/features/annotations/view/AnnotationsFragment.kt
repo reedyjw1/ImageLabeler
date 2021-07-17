@@ -12,29 +12,34 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.isVisible
+import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
-import com.reedy.imagelabeler.generator.AnnotationGenerators
+import com.reedy.imagelabeler.features.annotations.model.ButtonState
+import com.reedy.imagelabeler.utils.AnnotationGenerators
 import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.ImageData
+import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
+import com.reedy.imagelabeler.utils.shared.SharedPrefsKeys
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
-import java.io.File
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.io.FileOutputStream
 import java.lang.Exception
 
 class AnnotationsFragment:
-    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>(R.layout.fragment_annotations), BoxUpdatedListener
+    BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>
+        (R.layout.fragment_annotations), BoxUpdatedListener, KoinComponent
 {
     companion object {
         private const val TAG = "Annotations"
         private const val REQUEST_CODE = 1274
     }
-
-    private var treeUri: Uri? = null
 
     private val navigator by lazy {
         val navHostFragment = requireActivity()
@@ -43,6 +48,7 @@ class AnnotationsFragment:
 
         navHostFragment.navController
     }
+    private val sharedProvider: ISharedPrefsHelper by inject()
 
     override val viewModel: AnnotationsViewModel by viewModels {
         AnnotationsViewModelFactory(navigator)
@@ -67,6 +73,9 @@ class AnnotationsFragment:
         zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
         export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
         refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
+        undo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnUndo) }
+        redo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnRedo) }
+        clear.setOnClickListener { showDialog() }
         directory_recycler.adapter = adapter
         askPermission()
 
@@ -84,19 +93,10 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
-        image_editor.updateBoxList(viewState.boxes)
+        val boxesSafe = viewState.imageData?.boxes ?: return
+        image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)
         title.text = viewState.directoryName
-    }
-
-    private fun enableZoom(bool: Boolean) {
-        image_editor.setOverScrollHorizontal(bool)
-        image_editor.setOverScrollVertical(bool)
-        image_editor.setScrollEnabled(bool)
-        image_editor.setHorizontalPanEnabled(bool)
-        image_editor.setVerticalPanEnabled(bool)
-        image_editor.isEditingEnabled(!bool)
-        
     }
 
     override fun handleSideEffect(effect: AnnotationsViewEffect) {
@@ -104,7 +104,8 @@ class AnnotationsFragment:
             is AnnotationsViewEffect.UpdateBoxList -> {
                 image_editor.updateBoxes(effect.box)
             }
-            is AnnotationsViewEffect.ExportAnnotations -> export(effect.list)
+            is AnnotationsViewEffect.UpdateEntireList -> { image_editor.updateBoxList(effect.boxes) }
+            is AnnotationsViewEffect.ExportAnnotations -> export(effect.annotation)
             is AnnotationsViewEffect.RefreshDirectory -> {
                 initDir()
             }
@@ -133,17 +134,26 @@ class AnnotationsFragment:
         }
     }
 
+    private fun enableZoom(bool: Boolean) {
+        image_editor.setOverScrollHorizontal(bool)
+        image_editor.setOverScrollVertical(bool)
+        image_editor.setScrollEnabled(bool)
+        image_editor.setHorizontalPanEnabled(bool)
+        image_editor.setVerticalPanEnabled(bool)
+        image_editor.isEditingEnabled(!bool)
+
+    }
+
     private fun initDir(isFirst: Boolean = false) {
-        val uri = treeUri ?: return
+        val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri() ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
         val files = dir?.listFiles() ?: return
         val name = dir.name ?: return
         viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name, isFirst))
-
     }
 
-    private fun export(boxes: List<Box>) {
-        val uri = treeUri ?: return
+    private fun export(annotation: ImageData) {
+        val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri() ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
         val file = dir?.createFile("image", "grid.jpg") ?: return
         val bitmap = (overlay.drawable as BitmapDrawable).bitmap
@@ -154,25 +164,11 @@ class AnnotationsFragment:
             }
         }
 
-        boxes.forEachIndexed { index, box ->
-            box.imageHeight = bitmap.height
-            box.imageWidth = bitmap.width
+        annotation.imageHeight = bitmap.height
+        annotation.imageWidth = bitmap.width
 
-            val xMin = box.relativeToBitmapXMin ?: return
-            val yMin = box.relativeToBitmapYMin ?: return
-            val xMax = box.relativeToBitmapXMax ?: return
-            val yMax = box.relativeToBitmapYMax ?: return
-
-            if (xMin > xMax) {
-                box.relativeToBitmapXMin = xMax
-                box.relativeToBitmapXMax = xMin
-            }
-            if (yMin > yMax) {
-                box.relativeToBitmapYMin = yMax
-                box.relativeToBitmapYMax = yMin
-            }
-            
-            val generatedText = AnnotationGenerators.getPascalVocAnnotation(box)
+        annotation.boxes.forEachIndexed { index, box ->
+            val generatedText = AnnotationGenerators.getPascalVocAnnotation(box, annotation)
 
             val xmlFile = dir.createFile("application/xml", "grid_${index}.xml") ?: return@forEachIndexed
 
@@ -185,10 +181,27 @@ class AnnotationsFragment:
         initDir()
     }
 
-    private fun askPermission() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+    private fun showDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.confirm_clear_title)
+            .setMessage(R.string.confirm_clear_desc)
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.accept) { dialog, _ ->
+                viewModel.process(AnnotationsViewEvent.OnClear)
+                dialog.dismiss()
+            }.show()
+    }
 
-        startActivityForResult(intent, REQUEST_CODE)
+    private fun askPermission() {
+        val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri()
+        if (uri == null) {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            startActivityForResult(intent, REQUEST_CODE)
+        } else {
+            initDir(true)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -196,7 +209,7 @@ class AnnotationsFragment:
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             if (data != null) {
                 //this is the uri user has provided us
-                treeUri = data.data
+                sharedProvider.saveToSharedPrefs(SharedPrefsKeys.DIR_URI, data.data.toString())
                 initDir(true)
             }
         }
@@ -204,5 +217,10 @@ class AnnotationsFragment:
 
     override fun onBoxAdded(box: Box, onlyVisual: Boolean) {
         viewModel.process(AnnotationsViewEvent.OnBoxAdded(box, onlyVisual))
+    }
+
+    override fun onStop() {
+        viewModel.process(AnnotationsViewEvent.OnStop)
+        super.onStop()
     }
 }

@@ -1,7 +1,8 @@
 package com.reedy.imagelabeler.extensions
 
-import android.util.Log
-import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.UiDocument
+import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.ImageData
 
 fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
     return map {
@@ -9,8 +10,13 @@ fun <T> List<T>.replace(newValue: T, block: (T) -> Boolean): List<T> {
     }
 }
 
-fun <T> MutableList<T>.addAndUpdate(newValue: T): MutableList<T> {
-    add(newValue)
+fun ImageData.addAndUpdate(newValue: Box): ImageData {
+    boxes.add(newValue)
+    return this
+}
+
+fun ImageData.resetBoxes(): ImageData {
+    boxes = mutableListOf()
     return this
 }
 
@@ -67,4 +73,24 @@ fun MutableList<UiDocument>.findSelected(): UiDocument? {
     return null
 }
 
+
+fun ImageData.copy(): ImageData {
+    return ImageData(
+        uid = uid,
+        bitmapUri = bitmapUri,
+        directoryUri = directoryUri,
+        fileName = fileName,
+        path = path,
+        group = group,
+        source = source,
+        imageHeight = imageHeight,
+        imageWidth = imageWidth,
+        depth = depth,
+        segmented = segmented,
+        pose = pose,
+        truncated = truncated,
+        difficult = difficult,
+        boxes = boxes
+    )
+}
 

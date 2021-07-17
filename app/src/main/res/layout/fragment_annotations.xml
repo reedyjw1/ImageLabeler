@@ -150,31 +150,65 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_baseline_keyboard_arrow_left_24"
-                style="@style/Widget.App.Button.IconOnly"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
+                android:layout_marginEnd="4dp" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                app:checkedButton="@+id/zoom"
+                android:layout_marginEnd="4dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/zoom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_zoom_out_map_24"
+                    style="@style/Widget.App.Button.IconOnlyNoOutline"
+                    android:layout_marginEnd="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_edit_24"
+                    style="@style/Widget.App.Button.IconOnlyNoOutline"
+                    android:layout_marginEnd="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_baseline_delete_24"
+                    style="@style/Widget.App.Button.IconOnlyNoOutline"
+                    android:layout_marginEnd="4dp" />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:icon="@drawable/ic_baseline_layers_clear_24"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
                 android:layout_marginEnd="4dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/edit"
+                android:id="@+id/undo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_baseline_edit_24"
-                style="@style/Widget.App.Button.IconOnly"
+                app:icon="@drawable/ic_baseline_undo_24"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
                 android:layout_marginEnd="4dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/delete"
+                android:id="@+id/redo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_baseline_delete_24"
-                style="@style/Widget.App.Button.IconOnly"
-                android:layout_marginEnd="4dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/zoom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/ic_baseline_zoom_out_map_24"
-                style="@style/Widget.App.Button.IconOnly"
+                app:icon="@drawable/ic_baseline_redo_24"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
                 android:layout_marginEnd="4dp" />
 
             <com.google.android.material.button.MaterialButton
@@ -182,7 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/ic_baseline_keyboard_arrow_right_24"
-                style="@style/Widget.App.Button.IconOnly"
+                style="@style/Widget.App.Button.IconOnlyNoOutline"
                 android:layout_marginEnd="4dp" />
         </LinearLayout>
 

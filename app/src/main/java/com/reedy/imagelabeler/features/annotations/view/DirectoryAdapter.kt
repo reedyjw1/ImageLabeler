@@ -1,13 +1,12 @@
 package com.reedy.imagelabeler.features.annotations.view
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.reedy.imagelabeler.R
-import com.reedy.imagelabeler.features.annotations.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import kotlinx.android.synthetic.main.layout_directory_cell.view.*
 
 class DirectoryAdapter(): ListAdapter<UiDocument, DirectoryVH>(UiDocument.DIFFER) {
