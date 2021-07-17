@@ -211,6 +211,19 @@ class AnnotationsViewModel private constructor(
                     )
                 }
             }
+            is AnnotationsViewEvent.LabelClicked -> {
+
+            }
+            is AnnotationsViewEvent.AddNewLabel -> {
+                Log.i(TAG, "process: Adding new Label=${viewState.value.labelList}")
+                viewModelScope.launch(Dispatchers.IO) {
+                    setState {
+                        copy(
+                            labelList = labelList.addAndUpdate(event.label)
+                        )
+                    }
+                }
+            }
         }
     }
 

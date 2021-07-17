@@ -1,6 +1,7 @@
 package com.reedy.imagelabeler.extensions
 
 import com.reedy.imagelabeler.features.annotations.model.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 
@@ -18,6 +19,15 @@ fun ImageData.addAndUpdate(newValue: Box): ImageData {
 fun ImageData.resetBoxes(): ImageData {
     boxes = mutableListOf()
     return this
+}
+
+fun MutableList<UiLabel>.addAndUpdate(label: UiLabel): MutableList<UiLabel> {
+    val newList = mutableListOf<UiLabel>()
+    forEach {
+        newList.add(it)
+    }
+    newList.add(label)
+    return newList
 }
 
 fun MutableList<UiDocument>.updateSelected(document: UiDocument): MutableList<UiDocument> {

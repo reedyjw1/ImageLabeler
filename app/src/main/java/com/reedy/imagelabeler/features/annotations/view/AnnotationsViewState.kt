@@ -6,6 +6,7 @@ import com.reedy.imagelabeler.arch.ViewStateEffect
 import com.reedy.imagelabeler.arch.ViewStateEvent
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.features.annotations.model.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 
@@ -14,7 +15,8 @@ data class AnnotationsViewState(
     val imageData: ImageData? = null,
     val directory: MutableList<UiDocument> = mutableListOf(),
     val directoryName: String = "",
-    val directoryTreeIsOpen: Boolean = true
+    val directoryTreeIsOpen: Boolean = true,
+    val labelList: MutableList<UiLabel> = mutableListOf()
 ): ViewState
 
 sealed class AnnotationsViewEvent: ViewStateEvent {
@@ -30,6 +32,8 @@ sealed class AnnotationsViewEvent: ViewStateEvent {
     object OnRedo: AnnotationsViewEvent()
     object OnClear: AnnotationsViewEvent()
     object ChangeDirectoryPanelState: AnnotationsViewEvent()
+    data class LabelClicked(val label: UiLabel): AnnotationsViewEvent()
+    data class AddNewLabel(val label: UiLabel): AnnotationsViewEvent()
     data class SaveAnnotationToDB(val metadata: ImageData): AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String, val isFirstUpdate: Boolean = false): AnnotationsViewEvent()

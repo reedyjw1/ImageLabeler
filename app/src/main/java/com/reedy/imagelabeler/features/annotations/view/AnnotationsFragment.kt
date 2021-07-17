@@ -23,6 +23,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
+import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
 import com.reedy.imagelabeler.utils.AnnotationGenerators
@@ -30,6 +31,7 @@ import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
 import com.reedy.imagelabeler.utils.shared.SharedPrefsKeys
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
 import kotlinx.android.synthetic.main.fragment_annotations.*
+import kotlinx.android.synthetic.main.label_text_cell.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.io.FileOutputStream
@@ -65,6 +67,14 @@ class AnnotationsFragment:
         }
     }
 
+    private val labelAdapter by lazy {
+        LabelAdapter().apply {
+            onClick = {
+                viewModel.process(AnnotationsViewEvent.LabelClicked(it))
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -80,12 +90,15 @@ class AnnotationsFragment:
         redo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnRedo) }
         //slide_to_close.setOnClickListener { viewModel.process(AnnotationsViewEvent.ChangeDirectoryPanelState) }
         clear.setOnClickListener { showDialog() }
+        add_label.setOnClickListener { viewModel.process(AnnotationsViewEvent.AddNewLabel(UiLabel(name ="test", group = "group", labelNumber = 1))) }
         directory_recycler.adapter = adapter
+        label_recycler.adapter = labelAdapter
         askPermission()
 
     }
 
     override fun renderState(viewState: AnnotationsViewState) {
+        Log.i(TAG, "renderState: Rendering")
         when(viewState.buttonState) {
             ButtonState.ZOOM -> {
                 enableZoom(true)
@@ -111,6 +124,7 @@ class AnnotationsFragment:
         val boxesSafe = viewState.imageData?.boxes ?: return
         image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)
+        labelAdapter.submitList(viewState.labelList)
         title.text = viewState.directoryName
     }
 
