@@ -228,7 +228,7 @@ class AnnotationsViewModel private constructor(
     }
 
     private suspend fun getNewOrActualImageData(document: UiDocument): ImageData {
-        return repository.loadByImageUri(document.uri.toString()) ?: ImageData(bitmapUri = document.uri.toString())
+        return repository.loadByImageUri(document.uri.toString()) ?: ImageData(bitmapUri = document.uri.toString(), projectUid = "test")
     }
 
     private suspend fun leftOrRight(right: Boolean) {

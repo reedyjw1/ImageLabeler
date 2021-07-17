@@ -6,8 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.reedy.imagelabeler.model.ImageData
+import com.reedy.imagelabeler.model.Project
 
-@Database(entities = [ImageData::class], version = 1)
+@Database(entities = [ImageData::class, Project::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
 
@@ -16,4 +17,5 @@ abstract class AppDatabase: RoomDatabase() {
     }
 
     abstract fun imageDataDao(): ImageDataDao
+    abstract fun projectDao(): ProjectDao
 }

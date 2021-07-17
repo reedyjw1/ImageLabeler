@@ -86,6 +86,7 @@ fun MutableList<UiDocument>.findSelected(): UiDocument? {
 
 fun ImageData.copy(): ImageData {
     return ImageData(
+        projectUid = projectUid,
         uid = uid,
         bitmapUri = bitmapUri,
         directoryUri = directoryUri,

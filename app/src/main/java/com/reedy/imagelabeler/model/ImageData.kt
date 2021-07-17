@@ -2,13 +2,21 @@ package com.reedy.imagelabeler.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.util.*
 
-@Entity
+@Entity(foreignKeys = [ForeignKey(entity = Project::class,
+    parentColumns = arrayOf("projectUid"),
+    childColumns = arrayOf("projectUid"),
+    onDelete = ForeignKey.CASCADE)]
+)
 data class ImageData(
     @PrimaryKey
     var uid: String = UUID.randomUUID().toString(),
+    @ColumnInfo
+    var projectUid: String,
+    @ColumnInfo
     var bitmapUri: String,
     @ColumnInfo
     var directoryUri: String = "",
