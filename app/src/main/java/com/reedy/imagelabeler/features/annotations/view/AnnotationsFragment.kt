@@ -74,7 +74,7 @@ class AnnotationsFragment:
         edit.setOnClickListener { viewModel.process(AnnotationsViewEvent.EditButtonClicked) }
         delete.setOnClickListener { viewModel.process(AnnotationsViewEvent.DeleteButtonClicked) }
         zoom.setOnClickListener { viewModel.process(AnnotationsViewEvent.ZoomButtonClicked) }
-        export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
+        //export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
         refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
         undo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnUndo) }
         redo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnRedo) }
