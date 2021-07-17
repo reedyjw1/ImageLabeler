@@ -72,12 +72,23 @@
                 app:layout_constraintTop_toBottomOf="@+id/dir_title_container"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/export"
+                app:layout_constraintBottom_toTopOf="@id/label_panel"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 tools:listitem="@layout/layout_directory_cell"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>
+
+            <FrameLayout
+                android:id="@+id/label_panel"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@+id/directory_recycler"
+                app:layout_constraintBottom_toTopOf="@+id/export">
+
+                
+
+            </FrameLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/export"

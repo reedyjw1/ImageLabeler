@@ -113,11 +113,18 @@ class AnnotationsViewModel private constructor(
                         UiDocument(name = it.name ?: "[No Name]", uri = it.uri, type = it.type ?: "none")
                     }.toMutableList()
 
+                    val selected = viewState.value.directory.findSelected()
+                    val directory = if (selected != null) {
+                        dir.updateSelected(selected)
+                    } else {
+                        dir
+                    }
+
                     withContext(Dispatchers.Main) {
                         setState {
                             copy(
                                 directoryName = event.name,
-                                directory = dir,
+                                directory = directory,
                             )
                         }
                     }
