@@ -14,7 +14,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintWidth_percent=".25"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        android:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -86,7 +87,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/directory_recycler"
                 app:layout_constraintBottom_toTopOf="@+id/export">
 
-                
+
 
             </FrameLayout>
 
@@ -140,7 +141,6 @@
 
 
     </com.reedy.imagelabeler.view.image.PhotoViewEditor>
-
 
     <FrameLayout
         android:id="@+id/controls"
@@ -232,5 +232,24 @@
         </LinearLayout>
 
     </FrameLayout>
+
+    <!--<androidx.cardview.widget.CardView
+        android:id="@+id/slide_to_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#80FFFFFF"
+        app:layout_constraintStart_toEndOf="@id/project_structure"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/chevron"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_baseline_chevron_left_24"
+            android:padding="8dp"/>
+
+    </androidx.cardview.widget.CardView>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

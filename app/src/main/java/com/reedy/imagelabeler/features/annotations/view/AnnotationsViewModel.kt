@@ -204,6 +204,13 @@ class AnnotationsViewModel private constructor(
                     saveSelectedAnnotation(imgData)
                 }
             }
+            AnnotationsViewEvent.ChangeDirectoryPanelState -> {
+                setState {
+                    copy(
+                        directoryTreeIsOpen = !directoryTreeIsOpen
+                    )
+                }
+            }
         }
     }
 

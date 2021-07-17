@@ -2,6 +2,7 @@ package com.reedy.imagelabeler.features.annotations.view
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.content.UriPermission
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.drawable.BitmapDrawable
@@ -11,6 +12,8 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
@@ -20,9 +23,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
-import com.reedy.imagelabeler.utils.AnnotationGenerators
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
+import com.reedy.imagelabeler.utils.AnnotationGenerators
 import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
 import com.reedy.imagelabeler.utils.shared.SharedPrefsKeys
 import com.reedy.imagelabeler.view.image.BoxUpdatedListener
@@ -30,7 +33,7 @@ import kotlinx.android.synthetic.main.fragment_annotations.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.io.FileOutputStream
-import java.lang.Exception
+import java.util.*
 
 class AnnotationsFragment:
     BaseFragment<AnnotationsViewState, AnnotationsViewEvent, AnnotationsViewEffect, AnnotationsViewModel>
@@ -38,7 +41,7 @@ class AnnotationsFragment:
 {
     companion object {
         private const val TAG = "Annotations"
-        private const val REQUEST_CODE = 1274
+        private const val REQUEST_CODE = 56572
     }
 
     private val navigator by lazy {
@@ -75,6 +78,7 @@ class AnnotationsFragment:
         refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
         undo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnUndo) }
         redo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnRedo) }
+        //slide_to_close.setOnClickListener { viewModel.process(AnnotationsViewEvent.ChangeDirectoryPanelState) }
         clear.setOnClickListener { showDialog() }
         directory_recycler.adapter = adapter
         askPermission()
@@ -93,6 +97,17 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
+        /*if (viewState.directoryTreeIsOpen) {
+            val slide: Animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_open)
+            project_structure.visibility = View.VISIBLE
+            project_structure.startAnimation(slide)
+            chevron.setImageResource(R.drawable.ic_baseline_chevron_left_24)
+        } else {
+            val slide: Animation = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_close)
+            project_structure.visibility = View.GONE
+            project_structure.startAnimation(slide)
+            chevron.setImageResource(R.drawable.ic_baseline_chevron_right_24)
+        }*/
         val boxesSafe = viewState.imageData?.boxes ?: return
         image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)
@@ -196,10 +211,11 @@ class AnnotationsFragment:
 
     private fun askPermission() {
         val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri()
-        if (uri == null) {
+        if (uri == null || !uriValid(uri)) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             startActivityForResult(intent, REQUEST_CODE)
         } else {
+            Log.i(TAG, "askPermission: uri=$uri")
             initDir(true)
         }
     }
@@ -207,12 +223,27 @@ class AnnotationsFragment:
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            if (data != null) {
+            val uri = data?.data
+            if (uri != null) {
+                var flags = data.flags
+                flags = flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 //this is the uri user has provided us
-                sharedProvider.saveToSharedPrefs(SharedPrefsKeys.DIR_URI, data.data.toString())
+                sharedProvider.saveToSharedPrefs(SharedPrefsKeys.DIR_URI, uri.toString())
+                requireActivity().contentResolver.takePersistableUriPermission(uri, flags)
+
                 initDir(true)
             }
         }
+    }
+
+    private fun uriValid(uri: Uri): Boolean {
+        requireActivity().contentResolver.persistedUriPermissions.forEach {
+            if (it.uri == uri && it.isReadPermission && it.isWritePermission && it.persistedTime <= Date().time) {
+                return true
+            }
+        }
+        return false
     }
 
     override fun onBoxAdded(box: Box, onlyVisual: Boolean) {

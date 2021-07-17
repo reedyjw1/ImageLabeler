@@ -13,7 +13,8 @@ data class AnnotationsViewState(
     val buttonState: ButtonState = ButtonState.ZOOM,
     val imageData: ImageData? = null,
     val directory: MutableList<UiDocument> = mutableListOf(),
-    val directoryName: String = ""
+    val directoryName: String = "",
+    val directoryTreeIsOpen: Boolean = true
 ): ViewState
 
 sealed class AnnotationsViewEvent: ViewStateEvent {
@@ -28,6 +29,7 @@ sealed class AnnotationsViewEvent: ViewStateEvent {
     object OnUndo: AnnotationsViewEvent()
     object OnRedo: AnnotationsViewEvent()
     object OnClear: AnnotationsViewEvent()
+    object ChangeDirectoryPanelState: AnnotationsViewEvent()
     data class SaveAnnotationToDB(val metadata: ImageData): AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String, val isFirstUpdate: Boolean = false): AnnotationsViewEvent()
