@@ -8,4 +8,9 @@
     <string name="folderDesc">Folder Icon</string>
     <string name="fileDesc">Text Snippet Icon</string>
     <string name="not_supported">File type not supported.</string>
+
+    <string name="confirm_clear_title">Delete</string>
+    <string name="confirm_clear_desc">Delete all annotations for this image? This action cannot be undone.</string>
+    <string name="accept">Clear</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -78,6 +78,14 @@ class AnnotationsViewModel private constructor(
                 }
                 emitEffect(AnnotationsViewEffect.UpdateEntireList(viewState.value.imageData?.boxes ?: mutableListOf()))
             }
+            AnnotationsViewEvent.OnClear -> {
+                setState {
+                    copy(
+                        imageData = imageData?.resetBoxes()
+                    )
+                }
+                emitEffect(AnnotationsViewEffect.UpdateEntireList(viewState.value.imageData?.boxes ?: mutableListOf()))
+            }
             AnnotationsViewEvent.EditButtonClicked -> {
                 setState {
                     copy(

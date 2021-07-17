@@ -16,6 +16,7 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
@@ -74,6 +75,7 @@ class AnnotationsFragment:
         refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
         undo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnUndo) }
         redo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnRedo) }
+        clear.setOnClickListener { showDialog() }
         directory_recycler.adapter = adapter
         askPermission()
 
@@ -95,16 +97,6 @@ class AnnotationsFragment:
         image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)
         title.text = viewState.directoryName
-    }
-
-    private fun enableZoom(bool: Boolean) {
-        image_editor.setOverScrollHorizontal(bool)
-        image_editor.setOverScrollVertical(bool)
-        image_editor.setScrollEnabled(bool)
-        image_editor.setHorizontalPanEnabled(bool)
-        image_editor.setVerticalPanEnabled(bool)
-        image_editor.isEditingEnabled(!bool)
-        
     }
 
     override fun handleSideEffect(effect: AnnotationsViewEffect) {
@@ -142,6 +134,16 @@ class AnnotationsFragment:
         }
     }
 
+    private fun enableZoom(bool: Boolean) {
+        image_editor.setOverScrollHorizontal(bool)
+        image_editor.setOverScrollVertical(bool)
+        image_editor.setScrollEnabled(bool)
+        image_editor.setHorizontalPanEnabled(bool)
+        image_editor.setVerticalPanEnabled(bool)
+        image_editor.isEditingEnabled(!bool)
+
+    }
+
     private fun initDir(isFirst: Boolean = false) {
         val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri() ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
@@ -177,6 +179,19 @@ class AnnotationsFragment:
             }
         }
         initDir()
+    }
+
+    private fun showDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.confirm_clear_title)
+            .setMessage(R.string.confirm_clear_desc)
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.accept) { dialog, _ ->
+                viewModel.process(AnnotationsViewEvent.OnClear)
+                dialog.dismiss()
+            }.show()
     }
 
     private fun askPermission() {

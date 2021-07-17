@@ -27,6 +27,7 @@ sealed class AnnotationsViewEvent: ViewStateEvent {
     object OnStop: AnnotationsViewEvent()
     object OnUndo: AnnotationsViewEvent()
     object OnRedo: AnnotationsViewEvent()
+    object OnClear: AnnotationsViewEvent()
     data class SaveAnnotationToDB(val metadata: ImageData): AnnotationsViewEvent()
     data class OnBoxAdded(val box: Box, val onlyVisual: Boolean): AnnotationsViewEvent()
     data class UpdateDirectory(val dir: MutableList<DocumentFile>, val name: String, val isFirstUpdate: Boolean = false): AnnotationsViewEvent()
