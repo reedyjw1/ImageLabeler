@@ -34,7 +34,7 @@ class AnnotationsViewModel private constructor(
 
     private val repository: IAnnotationsRepository by inject()
     private var undoList = Stack<Box>()
-    private var redoList = LinkedList<Box>()
+    private var redoList = Stack<Box>()
 
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
@@ -59,7 +59,6 @@ class AnnotationsViewModel private constructor(
             AnnotationsViewEvent.OnUndo -> {
                 if (undoList.isEmpty()) return
                 val removed = undoList.pop()
-                Log.i(TAG, "process: removing: $removed")
                 redoList.add(removed)
                 setState {
                     copy(
@@ -69,7 +68,15 @@ class AnnotationsViewModel private constructor(
                 emitEffect(AnnotationsViewEffect.UpdateEntireList(viewState.value.imageData?.boxes ?: mutableListOf()))
             }
             AnnotationsViewEvent.OnRedo -> {
-
+                if (redoList.isEmpty()) return
+                val redo = redoList.pop()
+                undoList.add(redo)
+                setState {
+                    copy(
+                        imageData = imageData?.addAndUpdate(redo)
+                    )
+                }
+                emitEffect(AnnotationsViewEffect.UpdateEntireList(viewState.value.imageData?.boxes ?: mutableListOf()))
             }
             AnnotationsViewEvent.EditButtonClicked -> {
                 setState {
@@ -134,7 +141,7 @@ class AnnotationsViewModel private constructor(
                     val oldImg = viewState.value.imageData ?: return@launch
                     val imageData = getNewOrActualImageData(event.document)
                     undoList = Stack<Box>()
-                    redoList = LinkedList<Box>()
+                    redoList = Stack<Box>()
                     setState {
                         copy(
                             imageData = imageData
@@ -154,16 +161,13 @@ class AnnotationsViewModel private constructor(
                 // Ensures that the view model is the ultimate source of truth
                 viewModelScope.launch(Dispatchers.IO) {
                     if (!event.onlyVisual) {
-                        Log.i(TAG, "process: adding box")
                         val annotation = viewState.value.imageData?.addAndUpdate(event.box) ?: return@launch
                         annotation.boxes = annotation.boxes.checkAndSwap()
                         if (undoList.size > 9) {
                             undoList.removeFirst()
                             undoList.add(event.box.checkAndSwap())
-                            Log.i(TAG, "process: removing first: ${undoList.size}")
                         } else {
                             undoList.add(event.box.checkAndSwap())
-                            Log.i(TAG, "process: adding: ${undoList.size}")
                         }
                         setState {
                             copy(
@@ -181,7 +185,7 @@ class AnnotationsViewModel private constructor(
                 viewModelScope.launch(Dispatchers.IO) {
                     val imgData = viewState.value.imageData?.copy() ?: return@launch
                     undoList = Stack<Box>()
-                    redoList = LinkedList<Box>()
+                    redoList = Stack<Box>()
                     saveSelectedAnnotation(imgData)
                 }
             }
@@ -200,7 +204,7 @@ class AnnotationsViewModel private constructor(
             viewState.value.directory.findPrevious(currentDisplay) ?: return
         val imgData = getNewOrActualImageData(document)
         undoList = Stack<Box>()
-        redoList = LinkedList<Box>()
+        redoList = Stack<Box>()
         withContext(Dispatchers.Main) {
             setState {
                 copy(

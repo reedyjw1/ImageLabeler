@@ -73,6 +73,7 @@ class AnnotationsFragment:
         export.setOnClickListener { viewModel.process(AnnotationsViewEvent.ExportFiles) }
         refresh.setOnClickListener { viewModel.process(AnnotationsViewEvent.RefreshDirectory) }
         undo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnUndo) }
+        redo.setOnClickListener { viewModel.process(AnnotationsViewEvent.OnRedo) }
         directory_recycler.adapter = adapter
         askPermission()
 
@@ -90,7 +91,6 @@ class AnnotationsFragment:
                 enableZoom(true)
             }
         }
-        Log.i(TAG, "renderState: rendering")
         val boxesSafe = viewState.imageData?.boxes ?: return
         image_editor.updateBoxList(boxesSafe)
         adapter.submitList(viewState.directory)

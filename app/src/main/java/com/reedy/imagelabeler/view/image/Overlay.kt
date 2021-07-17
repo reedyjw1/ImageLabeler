@@ -37,7 +37,6 @@ class Overlay(context: Context, attrs: AttributeSet): AppCompatImageView(context
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        Log.i(TAG, "onDraw: inOverlay - ${boxes.size}")
         val bitmapWidth = (drawable as? BitmapDrawable)?.bitmap?.width?.toFloat() ?: return
         val bitmapHeight = (drawable as? BitmapDrawable)?.bitmap?.height?.toFloat() ?: return
         val xScale = bitmapWidth / width.toFloat()
@@ -73,7 +72,6 @@ class Overlay(context: Context, attrs: AttributeSet): AppCompatImageView(context
 
         when(event.action) {
             MotionEvent.ACTION_UP -> {
-                Log.i(TAG, "onTouchEvent: up")
                 box.xMax = (touchX * xScale)
                 box.yMax = (touchY * yScale)
 
