@@ -40,6 +40,16 @@ fun MutableList<UiDocument>.updateSelected(document: UiDocument): MutableList<Ui
     }.toMutableList()
 }
 
+fun MutableList<UiLabel>.updateSelected(label: UiLabel): MutableList<UiLabel> {
+    return this.map {
+        if (it.uid == label.uid && it.name == label.name) {
+            UiLabel(it.uid, it.name, it.group, it.labelNumber, true)
+        } else {
+            UiLabel(it.uid, it.name, it.group, it.labelNumber, false)
+        }
+    }.toMutableList()
+}
+
 fun MutableList<UiDocument>.findFirstImage(): UiDocument? {
     val extensions = arrayOf("jpg", "jpeg", "png", "bmp")
     forEach { doc ->

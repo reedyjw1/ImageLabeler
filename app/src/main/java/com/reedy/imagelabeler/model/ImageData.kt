@@ -6,11 +6,12 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.util.*
 
-@Entity(foreignKeys = [ForeignKey(entity = Project::class,
+/*@Entity(foreignKeys = [ForeignKey(entity = Project::class,
     parentColumns = arrayOf("projectUid"),
     childColumns = arrayOf("projectUid"),
     onDelete = ForeignKey.CASCADE)]
-)
+)*/
+@Entity
 data class ImageData(
     @PrimaryKey
     var uid: String = UUID.randomUUID().toString(),

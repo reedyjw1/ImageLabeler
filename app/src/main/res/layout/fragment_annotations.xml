@@ -113,8 +113,6 @@
                         android:layout_height="0dp"
                         app:layout_constraintTop_toBottomOf="@id/search_view"
                         app:layout_constraintBottom_toTopOf="@id/add_label"
-                        android:paddingStart="8dp"
-                        android:paddingEnd="8dp"
                         tools:listitem="@layout/label_text_cell"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"/>

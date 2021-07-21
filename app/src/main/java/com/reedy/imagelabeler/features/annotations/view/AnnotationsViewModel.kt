@@ -30,8 +30,6 @@ class AnnotationsViewModel private constructor(
     initialState = AnnotationsViewState()
 ), KoinComponent {
 
-
-
     private val repository: IAnnotationsRepository by inject()
     private var undoList = Stack<Box>()
     private var redoList = Stack<Box>()
@@ -212,7 +210,12 @@ class AnnotationsViewModel private constructor(
                 }
             }
             is AnnotationsViewEvent.LabelClicked -> {
-
+                setState {
+                    copy(
+                        selectedLabel = event.label.name,
+                        labelList = labelList.updateSelected(event.label)
+                    )
+                }
             }
             is AnnotationsViewEvent.AddNewLabel -> {
                 Log.i(TAG, "process: Adding new Label=${viewState.value.labelList}")

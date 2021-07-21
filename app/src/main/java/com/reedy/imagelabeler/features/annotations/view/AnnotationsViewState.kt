@@ -16,7 +16,8 @@ data class AnnotationsViewState(
     val directory: MutableList<UiDocument> = mutableListOf(),
     val directoryName: String = "",
     val directoryTreeIsOpen: Boolean = true,
-    val labelList: MutableList<UiLabel> = mutableListOf()
+    val labelList: MutableList<UiLabel> = mutableListOf(),
+    val selectedLabel: String = ""
 ): ViewState
 
 sealed class AnnotationsViewEvent: ViewStateEvent {
