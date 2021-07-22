@@ -10,6 +10,7 @@ import com.reedy.imagelabeler.arch.BaseViewModel
 import com.reedy.imagelabeler.extensions.*
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.features.annotations.model.UiDocument
+import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.features.annotations.repository.IAnnotationsRepository
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
@@ -127,6 +128,7 @@ class AnnotationsViewModel private constructor(
                         }
                     }
                     if (event.isFirstUpdate) {
+                        loadLabels()
                         val document = viewState.value.directory.findFirstImage() ?: return@launch
                         val imageData = getNewOrActualImageData(document)
                         withContext(Dispatchers.Main) {
@@ -173,14 +175,16 @@ class AnnotationsViewModel private constructor(
                 // For finalizing the box list once the touch has been released
                 // Ensures that the view model is the ultimate source of truth
                 viewModelScope.launch(Dispatchers.IO) {
+                    val labeledBox = event.box
+                    labeledBox.label = viewState.value.selectedLabel
                     if (!event.onlyVisual) {
-                        val annotation = viewState.value.imageData?.addAndUpdate(event.box) ?: return@launch
+                        val annotation = viewState.value.imageData?.addAndUpdate(labeledBox) ?: return@launch
                         annotation.boxes = annotation.boxes.checkAndSwap()
                         if (undoList.size > 9) {
                             undoList.removeFirst()
-                            undoList.add(event.box.checkAndSwap())
+                            undoList.add(labeledBox.checkAndSwap())
                         } else {
-                            undoList.add(event.box.checkAndSwap())
+                            undoList.add(labeledBox.checkAndSwap())
                         }
                         setState {
                             copy(
@@ -256,6 +260,27 @@ class AnnotationsViewModel private constructor(
 
     private suspend fun saveSelectedAnnotation(imageData: ImageData) {
         repository.saveAnnotations(imageData)
+    }
+
+    private fun loadLabels() {
+        val labels = mutableListOf<UiLabel>()
+        val suits = mutableListOf<String>("Hearts", "Spades", "Diamonds", "Clubs")
+        val numbers = mutableListOf<String>("Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King")
+
+        suits.forEach { suit ->
+            numbers.forEach { number ->
+                val uiLabel = UiLabel(name = "$number of $suit", group = "", labelNumber = 0, selected = false)
+                labels.add(uiLabel)
+            }
+        }
+        labels.first().selected = true
+
+        setState {
+            copy(
+                labelList = labels,
+                selectedLabel = labels.first().name
+            )
+        }
     }
 
     companion object {

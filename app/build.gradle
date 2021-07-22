@@ -70,6 +70,8 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.0.1'
 
     implementation "org.koin:koin-android:2.1.5"
+    implementation "com.amitshekhar.android:debug-db:1.0.6"
+
 
     // Base
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
