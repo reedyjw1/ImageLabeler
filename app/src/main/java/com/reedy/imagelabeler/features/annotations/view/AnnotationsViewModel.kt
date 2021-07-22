@@ -174,6 +174,7 @@ class AnnotationsViewModel private constructor(
                         directory = directory.updateSelected(event.document),
                     )
                 }
+
                 viewModelScope.launch(Dispatchers.IO) {
                     val oldImg = viewState.value.imageData ?: return@launch
                     val imageData = getNewOrActualImageData(event.document)
@@ -257,7 +258,7 @@ class AnnotationsViewModel private constructor(
     }
 
     private suspend fun getNewOrActualImageData(document: UiDocument): ImageData {
-        return repository.loadByImageUri(document.uri.toString()) ?: ImageData(bitmapUri = document.uri.toString(), projectUid = "test")
+        return repository.loadByImageUri(document.uri.toString()) ?: ImageData(fileName = document.name, bitmapUri = document.uri.toString(), projectUid = "test")
     }
 
     private suspend fun leftOrRight(right: Boolean) {
