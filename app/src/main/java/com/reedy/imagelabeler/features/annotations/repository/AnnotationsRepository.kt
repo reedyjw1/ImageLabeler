@@ -17,6 +17,10 @@ class AnnotationsRepository(context: Context): IAnnotationsRepository {
         return appDatabase.loadDataFromImageUri(id)
     }
 
+    override suspend fun loadAllByProjectId(id: String): List<ImageData> {
+        return appDatabase.loadAllByProjectId(id)
+    }
+
     override fun saveAnnotations(imageData: ImageData) {
         Log.i("Repository", "saveSelectedAnnotation: $imageData")
         appDatabase.saveAnnotations(imageData)

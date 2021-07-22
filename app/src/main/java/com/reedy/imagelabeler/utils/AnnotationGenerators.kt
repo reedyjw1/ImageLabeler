@@ -1,9 +1,19 @@
 package com.reedy.imagelabeler.utils
 
+import android.database.Cursor
+import android.net.Uri
+import android.util.Log
 import com.reedy.imagelabeler.model.Box
 import com.reedy.imagelabeler.model.ImageData
+import java.io.File
+import java.io.FileWriter
+import java.lang.Exception
+import java.lang.StringBuilder
+
 
 object AnnotationGenerators {
+
+    private const val TAG = "AnnotationGenerator"
 
     fun getPascalVocAnnotation(box: Box, annotation: ImageData): String {
         return "<annotation>\n" +
@@ -31,6 +41,36 @@ object AnnotationGenerators {
                 "\t\t</bndbox>\n" +
                 "\t</object>\n" +
                 "</annotation>"
+    }
+
+    fun writeTensorflowObjectDetectionCsv(data: List<ImageData>): String {
+        val builder = StringBuilder()
+        val header = "filename, class, width, height, xmin, ymin, xmax, ymax"
+
+        builder.append(header)
+        builder.append("\n")
+        data.forEach { image ->
+            image.boxes.forEach { box ->
+                builder.append(image.fileName)
+                builder.append(",")
+                builder.append(box.label)
+                builder.append(",")
+                builder.append(box.width)
+                builder.append(",")
+                builder.append(box.height)
+                builder.append(",")
+                builder.append(box.xMin.toInt())
+                builder.append(",")
+                builder.append(box.yMin.toInt())
+                builder.append(",")
+                builder.append(box.xMax.toInt())
+                builder.append(",")
+                builder.append(box.yMax.toInt())
+                builder.append("\n")
+            }
+        }
+
+        return builder.toString()
     }
 
 }

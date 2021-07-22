@@ -1,6 +1,7 @@
 package com.reedy.imagelabeler.features.annotations.view
 
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -12,11 +13,10 @@ import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.features.annotations.repository.IAnnotationsRepository
-import com.reedy.imagelabeler.model.Box
-import com.reedy.imagelabeler.model.ImageData
-import com.reedy.imagelabeler.model.checkAndSwap
-import com.reedy.imagelabeler.model.removeAndUpdate
+import com.reedy.imagelabeler.model.*
+import com.reedy.imagelabeler.utils.AnnotationGenerators
 import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
+import com.reedy.imagelabeler.utils.shared.SharedPrefsKeys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +37,28 @@ class AnnotationsViewModel private constructor(
 
     override fun process(event: AnnotationsViewEvent) {
         when(event) {
+            is AnnotationsViewEvent.OnExportAnnotations -> {
+                when(event.state) {
+                    ExportState.TFRECORD -> {
+
+                    }
+                    ExportState.TF_OBJECT_CSV -> {
+                        viewModelScope.launch(Dispatchers.IO) {
+                            val annotations = repository.loadAllByProjectId("test")
+                            val csv = AnnotationGenerators.writeTensorflowObjectDetectionCsv(annotations)
+                            withContext(Dispatchers.Main) {
+                                emitEffect(AnnotationsViewEffect.OnSaveTFObjectCsv(csv))
+                            }
+                        }
+                    }
+                    ExportState.PASCAL_VOC -> {
+
+                    }
+                    ExportState.COCO_JSON -> {
+
+                    }
+                }
+            }
             is AnnotationsViewEvent.SaveAnnotationToDB -> {
 
             }

@@ -9,13 +9,19 @@ import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
+import androidx.core.view.iterator
 import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
@@ -25,6 +31,7 @@ import com.reedy.imagelabeler.arch.BaseFragment
 import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.ExportState
 import com.reedy.imagelabeler.model.ImageData
 import com.reedy.imagelabeler.utils.AnnotationGenerators
 import com.reedy.imagelabeler.utils.shared.ISharedPrefsHelper
@@ -35,6 +42,8 @@ import kotlinx.android.synthetic.main.label_text_cell.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.io.FileOutputStream
+import java.io.FileWriter
+import java.nio.charset.Charset
 import java.util.*
 
 class AnnotationsFragment:
@@ -44,6 +53,7 @@ class AnnotationsFragment:
     companion object {
         private const val TAG = "Annotations"
         private const val REQUEST_CODE = 56572
+        private const val CREATE_FILE = 4201
     }
 
     private val navigator by lazy {
@@ -160,6 +170,24 @@ class AnnotationsFragment:
                     image_editor.visibility = View.INVISIBLE
                 }
             }
+            is AnnotationsViewEffect.ShowToast -> {
+                Toast.makeText(requireContext(), effect.msg, Toast.LENGTH_SHORT).show()
+            }
+            is AnnotationsViewEffect.OnSaveTFObjectCsv -> { saveTFObjCsv(effect.csvString) }
+        }
+    }
+
+    private fun saveTFObjCsv(csvString: String) {
+        try {
+            val permission = requireActivity().contentResolver.persistedUriPermissions[0]
+            val dir = DocumentFile.fromTreeUri(requireContext(), permission.uri)
+            val file = dir?.createFile("plain/text","annotations.csv") ?: return
+            val outputStream = requireActivity().contentResolver.openOutputStream(file.uri) ?: return
+            outputStream.write(csvString.toByteArray(Charset.forName("UTF-8")))
+            outputStream.flush()
+            outputStream.close()
+        } catch (e: Exception) {
+            Log.e(TAG, "writeTensorflowObjectDetectionCsv: ${e.localizedMessage}")
         }
     }
 
@@ -179,6 +207,10 @@ class AnnotationsFragment:
         val files = dir?.listFiles() ?: return
         val name = dir.name ?: return
         viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name, isFirst))
+    }
+
+    private fun exportAnnotations(exportState: ExportState) {
+
     }
 
     private fun export(annotation: ImageData) {
@@ -248,7 +280,19 @@ class AnnotationsFragment:
 
                 initDir(true)
             }
-        }
+        } /*else if (resultCode == RESULT_OK && requestCode == CREATE_FILE) {
+            val uri = data?.data
+            val writer = FileWriter(uri?.path.toString())
+            try {
+                writer.append(csvString)
+            } catch (e: Exception) {
+                Log.e(TAG, "writeTensorflowObjectDetectionCsv: ${e.localizedMessage}")
+            } finally {
+                writer.flush()
+                writer.close()
+            }
+
+        }*/
     }
 
     private fun uriValid(uri: Uri): Boolean {
@@ -267,5 +311,27 @@ class AnnotationsFragment:
     override fun onStop() {
         viewModel.process(AnnotationsViewEvent.OnStop)
         super.onStop()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.main, menu)
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.export -> {
+                viewModel.process(AnnotationsViewEvent.OnExportAnnotations(ExportState.TF_OBJECT_CSV))
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
     }
 }

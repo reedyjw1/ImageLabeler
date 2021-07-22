@@ -8,6 +8,7 @@ import com.reedy.imagelabeler.features.annotations.model.ButtonState
 import com.reedy.imagelabeler.features.annotations.model.UiDocument
 import com.reedy.imagelabeler.features.annotations.model.UiLabel
 import com.reedy.imagelabeler.model.Box
+import com.reedy.imagelabeler.model.ExportState
 import com.reedy.imagelabeler.model.ImageData
 
 data class AnnotationsViewState(
@@ -33,6 +34,7 @@ sealed class AnnotationsViewEvent: ViewStateEvent {
     object OnRedo: AnnotationsViewEvent()
     object OnClear: AnnotationsViewEvent()
     object ChangeDirectoryPanelState: AnnotationsViewEvent()
+    data class OnExportAnnotations(val state: ExportState): AnnotationsViewEvent()
     data class LabelClicked(val label: UiLabel): AnnotationsViewEvent()
     data class AddNewLabel(val label: UiLabel): AnnotationsViewEvent()
     data class SaveAnnotationToDB(val metadata: ImageData): AnnotationsViewEvent()
@@ -47,4 +49,6 @@ sealed class AnnotationsViewEffect: ViewStateEffect {
     data class LoadImage(val doc: UiDocument?): AnnotationsViewEffect()
     object RefreshDirectory: AnnotationsViewEffect()
     data class UpdateEntireList(val boxes: MutableList<Box>): AnnotationsViewEffect()
+    data class ShowToast(val msg: String): AnnotationsViewEffect()
+    data class OnSaveTFObjectCsv(val csvString: String): AnnotationsViewEffect()
 }

@@ -9,6 +9,9 @@ interface ImageDataDao {
     @Query("SELECT * FROM imagedata WHERE uid == :id")
     fun loadAllById(id: String): List<ImageData>
 
+    @Query("SELECT * FROM imagedata WHERE projectUid == :id")
+    fun loadAllByProjectId(id: String): List<ImageData>
+
     @Query("SELECT * FROM imagedata WHERE bitmapUri == :id")
     fun loadDataFromImageUri(id: String): ImageData?
 
