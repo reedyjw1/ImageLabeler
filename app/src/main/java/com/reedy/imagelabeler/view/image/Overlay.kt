@@ -29,10 +29,10 @@ class Overlay(context: Context, attrs: AttributeSet): AppCompatImageView(context
     init {
         paint.color = Color.YELLOW
         paint.style = Paint.Style.STROKE
-        paint.strokeWidth = 8.0f
+        paint.strokeWidth = 5.0f
         paint.strokeCap = Paint.Cap.ROUND
         paint.strokeJoin = Paint.Join.ROUND
-        paint.strokeMiter = 100.0f
+        paint.strokeMiter = 80.0f
     }
 
     override fun onDraw(canvas: Canvas?) {

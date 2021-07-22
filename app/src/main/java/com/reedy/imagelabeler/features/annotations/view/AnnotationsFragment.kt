@@ -53,7 +53,6 @@ class AnnotationsFragment:
     companion object {
         private const val TAG = "Annotations"
         private const val REQUEST_CODE = 56572
-        private const val CREATE_FILE = 4201
     }
 
     private val navigator by lazy {
@@ -209,10 +208,6 @@ class AnnotationsFragment:
         viewModel.process(AnnotationsViewEvent.UpdateDirectory(files.toMutableList(), name, isFirst))
     }
 
-    private fun exportAnnotations(exportState: ExportState) {
-
-    }
-
     private fun export(annotation: ImageData) {
         val uri = sharedProvider.getSharedPrefs(SharedPrefsKeys.DIR_URI)?.toUri() ?: return
         val dir = DocumentFile.fromTreeUri(requireContext(), uri)
@@ -280,19 +275,7 @@ class AnnotationsFragment:
 
                 initDir(true)
             }
-        } /*else if (resultCode == RESULT_OK && requestCode == CREATE_FILE) {
-            val uri = data?.data
-            val writer = FileWriter(uri?.path.toString())
-            try {
-                writer.append(csvString)
-            } catch (e: Exception) {
-                Log.e(TAG, "writeTensorflowObjectDetectionCsv: ${e.localizedMessage}")
-            } finally {
-                writer.flush()
-                writer.close()
-            }
-
-        }*/
+        }
     }
 
     private fun uriValid(uri: Uri): Boolean {
