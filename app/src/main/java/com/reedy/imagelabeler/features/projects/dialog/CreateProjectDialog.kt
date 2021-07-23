@@ -1,11 +1,31 @@
 package com.reedy.imagelabeler.features.projects.dialog
 
-import android.app.Dialog
-import android.content.Context
-import android.os.Bundle
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.NavHostFragment
+import com.reedy.imagelabeler.R
+import com.reedy.imagelabeler.arch.BaseDialogFragment
 
-class CreateProjectDialog(context: Context): Dialog(context) {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+class CreateProjectDialog:
+    BaseDialogFragment<CreateProjectsViewState, CreateProjectsViewEvent, CreateProjectsViewEffect, CreateProjectsViewModel>(
+        R.layout.dialog_add_new_project) {
+
+    private val navigator by lazy {
+        val navHostFragment = requireActivity()
+            .supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+
+        navHostFragment.navController
     }
+    override val viewModel: CreateProjectsViewModel by viewModels {
+        CreateProjectViewModelFactory(navigator)
+    }
+
+    override fun renderState(viewState: CreateProjectsViewState) {
+
+    }
+
+    override fun handleSideEffect(effect: CreateProjectsViewEffect) {
+        
+    }
+
 }

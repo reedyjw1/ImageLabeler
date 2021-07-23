@@ -1,10 +1,12 @@
 package com.reedy.imagelabeler.features.projects.view
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseFragment
+import kotlinx.android.synthetic.main.fragment_projects.*
 
 class ProjectsFragment:
     BaseFragment<ProjectsViewState, ProjectsViewEvent, ProjectsViewEffect, ProjectsViewModel>(R.layout.fragment_projects)
@@ -23,6 +25,11 @@ class ProjectsFragment:
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        create_new_project.setOnClickListener {  }
     }
 
     override fun renderState(viewState: ProjectsViewState) {
