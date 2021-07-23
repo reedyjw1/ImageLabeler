@@ -29,7 +29,7 @@ class ProjectsFragment:
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        create_new_project.setOnClickListener {  }
+        create_new_project.setOnClickListener { viewModel.process(ProjectsViewEvent.GotoCreateProjectDialog) }
     }
 
     override fun renderState(viewState: ProjectsViewState) {

@@ -3,6 +3,7 @@
 
     <string name="projects">Projects</string>
     <string name="annotations">Annotations</string>
+    <string name="create_new_project">Create New Project</string>
 
     <string name="export">Export Files</string>
     <string name="folderDesc">Folder Icon</string>

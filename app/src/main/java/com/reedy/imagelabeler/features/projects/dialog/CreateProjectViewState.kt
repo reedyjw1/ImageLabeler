@@ -9,7 +9,6 @@ import java.util.*
 data class CreateProjectsViewState(
     val projectId: String = UUID.randomUUID().toString(),
     val projectName: String = "",
-    val labels: List<UiLabel> = mutableListOf(),
     val license: String = "",
     val datasetUrl: String = ""
 ): ViewState

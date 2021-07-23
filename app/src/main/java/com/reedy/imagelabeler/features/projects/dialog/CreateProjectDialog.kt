@@ -1,5 +1,7 @@
 package com.reedy.imagelabeler.features.projects.dialog
 
+import android.graphics.Point
+import android.view.Gravity
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import com.reedy.imagelabeler.R
@@ -25,7 +27,18 @@ class CreateProjectDialog:
     }
 
     override fun handleSideEffect(effect: CreateProjectsViewEffect) {
-        
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val display = dialog?.window?.windowManager?.defaultDisplay
+        val size = Point()
+        display?.getSize(size)
+        val width: Int = size.x
+        val height: Int = size.y
+        dialog?.window?.setLayout((width * .7f).toInt(), (height * .70f).toInt())
+        dialog?.window?.setGravity(Gravity.CENTER)
     }
 
 }

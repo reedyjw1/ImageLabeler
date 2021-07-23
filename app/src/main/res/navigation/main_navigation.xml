@@ -3,7 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navigation"
-    app:startDestination="@id/annotations">
+    app:startDestination="@id/projects">
+
+    <action
+        android:id="@+id/gotoCreateNewProject"
+        app:destination="@id/create_new_project"/>
 
     <fragment
         android:id="@+id/projects"
@@ -16,5 +20,11 @@
         android:label="@string/annotations"
         android:name="com.reedy.imagelabeler.features.annotations.view.AnnotationsFragment"
         tools:layout="@layout/fragment_annotations"/>
+
+    <dialog
+        android:id="@+id/create_new_project"
+        android:name="com.reedy.imagelabeler.features.projects.dialog.CreateProjectDialog"
+        android:label="@string/create_new_project"
+        tools:layout="@layout/dialog_add_new_project"/>
 
 </navigation>

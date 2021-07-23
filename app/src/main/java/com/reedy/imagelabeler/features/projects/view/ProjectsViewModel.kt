@@ -4,16 +4,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
+import com.reedy.imagelabeler.R
 import com.reedy.imagelabeler.arch.BaseViewModel
 
 class ProjectsViewModel private constructor(
     savedStateHandle: SavedStateHandle,
-    navigator: NavController
+    private val navigator: NavController
 ): BaseViewModel<ProjectsViewState, ProjectsViewEvent, ProjectsViewEffect>(
     initialState = ProjectsViewState()
 ){
     override fun process(event: ProjectsViewEvent) {
-
+        when(event) {
+            ProjectsViewEvent.GotoCreateProjectDialog -> {
+                navigator.navigate(R.id.gotoCreateNewProject)
+            }
+        }
     }
 
     companion object {

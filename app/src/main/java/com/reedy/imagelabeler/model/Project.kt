@@ -10,5 +10,11 @@ data class Project(
     @PrimaryKey
     val projectUid: String = UUID.randomUUID().toString(),
     @ColumnInfo
+    val projectName: String,
+    @ColumnInfo
+    val license: String = "",
+    @ColumnInfo
+    val datasetUrl: String = "",
+    @ColumnInfo
     val dateCreated: Long = Date().time
 )

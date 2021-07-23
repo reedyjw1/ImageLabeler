@@ -10,7 +10,7 @@ data class ProjectsViewState(
 ): ViewState
 
 sealed class ProjectsViewEvent(): ViewStateEvent {
-
+    object GotoCreateProjectDialog: ProjectsViewEvent()
 }
 
 sealed class ProjectsViewEffect(): ViewStateEffect {
